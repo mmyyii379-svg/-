@@ -1,1 +1,440 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECO - نظام إدارة صيانة السيارات المتكامل</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-dark: #1e293b;
+            --primary-green: #00a86b;
+            --primary-blue: #38bdf8;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
 
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--bg-dark); color: var(--text-light); min-height: 100vh; }
+        
+        #login-screen { width: 100%; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%); }
+        .login-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); width: 100%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+        .logo-container { width: 100px; height: 100px; margin: 0 auto 15px auto; border-radius: 50%; border: 3px solid var(--primary-green); display: flex; align-items: center; justify-content: center; background: #0b0f19; font-size: 22px; font-weight: bold; color: var(--primary-green); }
+        .login-card h2 { font-size: 24px; margin-bottom: 5px; }
+        .login-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 25px; }
+        .input-group { text-align: right; margin-bottom: 15px; }
+        .input-group label { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; display: block; }
+        .input-group input { width: 100%; padding: 12px; background: #111827; border: 1px solid #374151; border-radius: 10px; color: white; font-size: 15px; }
+        .login-btn { background: var(--primary-green); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
+        .error-msg { color: #f87171; font-size: 13px; margin-top: 15px; display: none; }
+
+        #main-screen { display: none; background-color: #f1f5f9; color: #1e293b; min-height: 100vh; padding-bottom: 60px; }
+        .mobile-header { background: var(--panel-dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .mobile-header h1 { font-size: 18px; color: var(--primary-blue); }
+        
+        .menu-container { position: relative; }
+        .menu-toggle { background: #334155; color: white; border: none; padding: 10px 14px; border-radius: 8px; font-size: 18px; cursor: pointer; }
+        .dropdown-menu { display: none; position: absolute; left: 0; top: 45px; background: white; min-width: 200px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; z-index: 200; overflow: hidden; }
+        .dropdown-menu button { width: 100%; padding: 12px 15px; border: none; background: none; text-align: right; font-size: 14px; color: #334155; cursor: pointer; font-weight: 600; }
+        .dropdown-menu button:hover { background: #f1f5f9; color: var(--primary-green); }
+        .dropdown-menu button.logout-nav { border-top: 1px solid #edf2f7; color: #ef4444; }
+
+        .app-section { display: none; padding: 15px; max-width: 1200px; margin: 0 auto; }
+        .app-section.active { display: block; }
+
+        .welcome-box { margin-bottom: 15px; }
+        .welcome-box h2 { font-size: 20px; color: #0f172a; font-weight: 800; }
+        .welcome-box p { color: #64748b; font-size: 12px; }
+
+        .status-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+        .status-card { background: white; padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; }
+        .status-info h4 { font-size: 11px; color: #64748b; }
+        .status-info p { font-size: 16px; font-weight: bold; color: #0f172a; }
+        
+        .finance-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
+        .finance-card { background: #1e293b; color: white; padding: 15px; border-radius: 14px; border-left: 5px solid var(--primary-blue); }
+        .finance-card.total-in { border-left-color: var(--primary-green); }
+        .finance-card.total-out { border-left-color: #ef4444; }
+        .finance-card h3 { font-size: 12px; color: var(--text-muted); }
+        .finance-card .amount { font-size: 20px; font-weight: 800; margin-top: 4px; }
+
+        .form-box { background: white; padding: 18px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .form-box h4 { font-size: 14px; margin-bottom: 12px; color: #0f172a; border-right: 3px solid var(--primary-green); padding-right: 6px; }
+        .modern-input, .modern-select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f8fafc; }
+        .modern-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; color: white; }
+        .btn-green { background: var(--primary-green); }
+        .btn-slate { background: #475569; }
+
+        .table-box { background: white; padding: 10px; border-radius: 14px; border: 1px solid #e2e8f0; overflow-x: auto; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+        th, td { padding: 10px; text-align: right; border-bottom: 1px solid #f1f5f9; }
+        th { color: #64748b; background: #f8fafc; }
+        
+        .badge { padding: 3px 6px; border-radius: 5px; font-size: 11px; font-weight: bold; }
+        .badge.work { background: #fef3c7; color: #d97706; }
+        .badge.ready { background: #dcfce7; color: #16a34a; }
+        .badge.done { background: #e0f2fe; color: #0284c7; }
+        .badge.repair-type { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+        .action-btn { background: #e0f2fe; color: #0369a1; border: none; padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; }
+        .action-btn:hover { background: #0284c7; color: white; }
+
+        .chart-box { background: white; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="logo-container">ECO</div>
+            <h2>مركز ECO</h2>
+            <p>نظام إدارة وصيانة السيارات الاحترافي</p>
+            <div class="input-group"><label>اسم المستخدم</label><input type="text" id="username" placeholder="منتظر"></div>
+            <div class="input-group"><label>كلمة المرور</label><input type="password" id="password" placeholder="••••••••"></div>
+            <button class="login-btn" onclick="handleLogin()">دخول للنظام ➔</button>
+            <p id="error-message" class="error-msg">❌ البيانات غير صحيحة</p>
+        </div>
+    </div>
+
+    <div id="main-screen">
+        <div class="mobile-header">
+            <h1>ECO نظام الصيانة المطور ⚙️</h1>
+            <div class="menu-container">
+                <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+                <div class="dropdown-menu" id="nav-dropdown">
+                    <button onclick="switchSection('dashboard')">📊 لوحة التحكم الرئيسية</button>
+                    <button onclick="switchSection('cars-section')">🚗 إدارة شؤون السيارات</button>
+                    <button onclick="switchSection('expenses-section')">💸 مصاريف الورشة وعملياتها</button>
+                    <button class="logout-nav" onclick="handleLogout()">🛑 تسجيل الخروج</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard" class="app-section active">
+            <div class="welcome-box">
+                <h2>نظرة عامة والتقارير المالية</h2>
+                <p>مرحباً بك منتظر، إليك إحصائيات الورشة المباشرة</p>
+            </div>
+
+            <div class="status-grid">
+                <div class="status-card"><div>🚗</div><div class="status-info"><h4>كل السيارات</h4><p id="count-all">0</p></div></div>
+                <div class="status-card"><div>🔧</div><div class="status-info"><h4>قيد العمل</h4><p id="count-work">0</p></div></div>
+                <div class="status-card"><div>✅</div><div class="status-info"><h4>جاهزة</h4><p id="count-ready">0</p></div></div>
+                <div class="status-card"><div>🏁</div><div class="status-info"><h4>تم التسليم</h4><p id="count-done">0</p></div></div>
+            </div>
+
+            <div class="finance-grid">
+                <div class="finance-card total-in"><h3>إجمالي الإيرادات (الوارد)</h3><div class="amount" id="total-income">0 د.ع</div></div>
+                <div class="finance-card total-out"><h3>إجمالي المصروفات (المصاريف)</h3><div class="amount" id="total-expenses">0 د.ع</div></div>
+                <div class="finance-card total-net"><h3>صافي الأرباح الحالية</h3><div class="amount" id="net-monthly-income">0 د.ع</div></div>
+            </div>
+
+            <div class="chart-box">
+                <h4 style="font-size:13px; margin-bottom:10px; color:#475569;">📈 رسم بياني مالي رئيسي (الأرباح العامة)</h4>
+                <canvas id="financialChart" style="max-height: 200px;"></canvas>
+            </div>
+        </div>
+
+        <div id="cars-section" class="app-section">
+            <div class="form-box">
+                <h4>➕ إضافة سيارة ومهمة صيانة جديدة</h4>
+                <form id="car-form" onsubmit="addCar(event)">
+                    <input type="text" id="car_model" class="modern-input" placeholder="نوع السيارة وموديلها (تاهو، كامري..)" required>
+                    <input type="text" id="plate_number" class="modern-input" placeholder="رقم اللوحة" required>
+                    <input type="text" id="phone" class="modern-input" placeholder="اسم أو رقم تليفون الزبون" required>
+                    <input type="text" id="repair_type" class="modern-input" placeholder="نوع التصليح (مثال: تصليح جير، حدادة، تبديل دهن..)" required>
+                    <input type="text" id="cost" class="modern-input" placeholder="تكلفة الصيانة والعمل (مثال: 10,000)" oninput="formatCurrencyInput(this)" required>
+                    <select id="car_status" class="modern-select">
+                        <option value="قيد العمل">قيد العمل</option>
+                        <option value="جاهزة">جاهزة للاستلام</option>
+                        <option value="تم التسليم">تم التسليم</option>
+                    </select>
+                    <button type="submit" class="modern-btn btn-green">حفظ وإدخل السيارة للورشة</button>
+                </form>
+            </div>
+
+            <div class="chart-box">
+                <h4 style="font-size:13px; margin-bottom:10px; color:#475569;">📊 حالة توزيع السيارات في الورشة حالياً</h4>
+                <canvas id="carsStatusChart" style="max-height: 180px; margin: 0 auto;"></canvas>
+            </div>
+
+            <div class="table-box">
+                <h4 style="padding:5px; font-size:14px;">🚗 سجل حالة صيانة السيارات الحالية</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>السيارة والزبون</th>
+                            <th>نوع التصليح</th>
+                            <th>رقم اللوحة</th>
+                            <th>الكلفة</th>
+                            <th>الحالة والتحكم السريع</th>
+                        </tr>
+                    </thead>
+                    <tbody id="car-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="expenses-section" class="app-section">
+            <div class="form-box">
+                <h4>📉 تسجيل مصاريف وتكاليف الورشة</h4>
+                <form id="expense-form" onsubmit="addExpense(event)">
+                    <input type="text" id="exp_desc" class="modern-input" placeholder="تفاصيل المصروف (شراء قطع، أجور، إيجار)" required>
+                    <input type="text" id="exp_amount" class="modern-input" placeholder="المبلغ المصروف بالدينار (مثال: 50,000)" oninput="formatCurrencyInput(this)" required>
+                    <button type="submit" class="modern-btn btn-slate">حفظ وتسجيل الكلفة</button>
+                </form>
+            </div>
+
+            <div class="chart-box">
+                <h4 style="font-size:13px; margin-bottom:10px; color:#475569;">📉 حجم إنفاق المصاريف التفصيلي</h4>
+                <canvas id="expensesChart" style="max-height: 180px;"></canvas>
+            </div>
+
+            <div class="table-box">
+                <h4 style="padding:5px; font-size:14px;">🧾 سجل فواتير المصاريف المدخلة</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>بيان وتفاصيل المصروف</th>
+                            <th>المبلغ المستقطع</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let cars = JSON.parse(localStorage.getItem('eco_v6_cars')) || [];
+        let expenses = JSON.parse(localStorage.getItem('eco_v6_exp')) || [];
+        
+        let mainChart = null;
+        let carsChart = null;
+        let expChart = null;
+
+        function formatCurrencyInput(input) {
+            let value = input.value.replace(/,/g, '');
+            if (!isNaN(value) && value !== '') {
+                input.value = parseFloat(value).toLocaleString('en-US');
+            }
+        }
+
+        function cleanNumber(valStr) {
+            return parseFloat(String(valStr).replace(/,/g, '')) || 0;
+        }
+
+        function handleLogin() {
+            const userInp = document.getElementById('username').value;
+            const passInp = document.getElementById('password').value;
+            if ((userInp === "منتظر" || userInp === "admin") && passInp === "eco2026") {
+                sessionStorage.setItem('eco_v6_login', 'true');
+                showDashboard();
+            } else { document.getElementById('error-message').style.display = 'block'; }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('eco_v6_login');
+            document.getElementById('main-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+
+        window.onload = function() {
+            if (sessionStorage.getItem('eco_v6_login') === 'true') { showDashboard(); }
+        }
+
+        function showDashboard() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-screen').style.display = 'block';
+            updateUI();
+            initAllCharts();
+        }
+
+        function toggleMenu() {
+            const dropdown = document.getElementById('nav-dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function switchSection(sectionId) {
+            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            document.getElementById('nav-dropdown').style.display = 'none';
+        }
+
+        function addCar(e) {
+            e.preventDefault();
+            const costRaw = document.getElementById('cost').value;
+            const car = {
+                id: Date.now(),
+                model: document.getElementById('car_model').value,
+                plate: document.getElementById('plate_number').value,
+                phone: document.getElementById('phone').value,
+                repairType: document.getElementById('repair_type').value,
+                cost: cleanNumber(costRaw),
+                status: document.getElementById('car_status').value
+            };
+            cars.push(car);
+            localStorage.setItem('eco_v6_cars', JSON.stringify(cars));
+            document.getElementById('car-form').reset();
+            updateUI();
+        }
+
+        function addExpense(e) {
+            e.preventDefault();
+            const amountRaw = document.getElementById('exp_amount').value;
+            const exp = {
+                desc: document.getElementById('exp_desc').value,
+                amount: cleanNumber(amountRaw)
+            };
+            expenses.push(exp);
+            localStorage.setItem('eco_v6_exp', JSON.stringify(expenses));
+            document.getElementById('expense-form').reset();
+            updateUI();
+        }
+
+        function completeCar(carId) {
+            cars = cars.map(car => {
+                if (car.id === carId) {
+                    if (car.status === 'قيد العمل') car.status = 'جاهزة';
+                    else if (car.status === 'جاهزة') car.status = 'تم التسليم';
+                }
+                return car;
+            });
+            localStorage.setItem('eco_v6_cars', JSON.stringify(cars));
+            updateUI();
+        }
+
+        function updateUI() {
+            let workCount = cars.filter(c => c.status === 'قيد العمل').length;
+            let readyCount = cars.filter(c => c.status === 'جاهزة').length;
+            let doneCount = cars.filter(c => c.status === 'تم التسليم').length;
+
+            document.getElementById('count-all').innerText = cars.length;
+            document.getElementById('count-work').innerText = workCount;
+            document.getElementById('count-ready').innerText = readyCount;
+            document.getElementById('count-done').innerText = doneCount;
+
+            const carBody = document.getElementById('car-table-body');
+            carBody.innerHTML = '';
+            let totalIncome = 0;
+
+            if(cars.length === 0) {
+                carBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px; color:#94a3b8;">لا توجد سيارات بالورشة حالياً</td></tr>';
+            } else {
+                cars.forEach(car => {
+                    totalIncome += car.cost;
+                    let badgeClass = car.status === 'قيد العمل' ? 'work' : (car.status === 'جاهزة' ? 'ready' : 'done');
+                    
+                    let actionBtnHTML = '';
+                    if(car.status === 'قيد العمل') {
+                        actionBtnHTML = `<button class="action-btn" onclick="completeCar(${car.id})">⚡ جاهزة للقبض</button>`;
+                    } else if(car.status === 'جاهزة') {
+                        actionBtnHTML = `<button class="action-btn" style="background:#e6fbf4; color:#00a86b;" onclick="completeCar(${car.id})">🏁 تم التسليم</button>`;
+                    } else {
+                        actionBtnHTML = `<span style="color:#64748b; font-size:11px;">✅ منتهية</span>`;
+                    }
+
+                    carBody.innerHTML += `
+                        <tr>
+                            <td><strong>${car.model}</strong><br><span style="font-size:11px; color:#64748b;">الزبون: ${car.phone}</span></td>
+                            <td><span class="badge repair-type">${car.repairType || 'غير محدد'}</span></td>
+                            <td>${car.plate}</td>
+                            <td style="color:#00a86b; font-weight:bold;">${car.cost.toLocaleString()} د.ع</td>
+                            <td>
+                                <span class="badge ${badgeClass}">${car.status}</span>
+                                <div style="margin-top:5px;">${actionBtnHTML}</div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const expBody = document.getElementById('expense-table-body');
+            expBody.innerHTML = '';
+            let totalExpenses = 0;
+
+            if(expenses.length === 0) {
+                expBody.innerHTML = '<tr><td colspan="2" style="text-align:center; padding:15px; color:#94a3b8;">لا توجد مصاريف مدخلة</td></tr>';
+            } else {
+                expenses.forEach(exp => {
+                    totalExpenses += exp.amount;
+                    expBody.innerHTML += `<tr><td><strong>${exp.desc}</strong></td><td style="color:#ef4444; font-weight:bold;">${exp.amount.toLocaleString()} د.ع</td></tr>`;
+                });
+            }
+
+            const netIncome = totalIncome - totalExpenses;
+            document.getElementById('total-income').innerText = totalIncome.toLocaleString() + ' د.ع';
+            document.getElementById('total-expenses').innerText = totalExpenses.toLocaleString() + ' د.ع';
+            document.getElementById('net-monthly-income').innerText = netIncome.toLocaleString() + ' د.ع';
+            
+            if (mainChart) {
+                mainChart.data.datasets[0].data = [totalIncome, totalExpenses, netIncome];
+                mainChart.update();
+            }
+            if (carsChart) {
+                carsChart.data.datasets[0].data = [workCount, readyCount, doneCount];
+                carsChart.update();
+            }
+            if (expChart) {
+                expChart.data.datasets[0].data = [totalExpenses];
+                expChart.update();
+            }
+        }
+
+        function initAllCharts() {
+            const ctxMain = document.getElementById('financialChart').getContext('2d');
+            if (!mainChart) {
+                mainChart = new Chart(ctxMain, {
+                    type: 'bar',
+                    data: {
+                        labels: ['إجمالي الوارد', 'إجمالي المصاريف', 'صافي الأرباح'],
+                        datasets: [{
+                            label: 'المبالغ بالدينار العراقي',
+                            data: [0, 0, 0],
+                            backgroundColor: ['#00a86b', '#ef4444', '#38bdf8'],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+                });
+            }
+
+            const ctxCars = document.getElementById('carsStatusChart').getContext('2d');
+            if (!carsChart) {
+                carsChart = new Chart(ctxCars, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['قيد العمل', 'جاهزة للاستلام', 'تم التسليم'],
+                        datasets: [{
+                            data: [0, 0, 0],
+                            backgroundColor: ['#f59e0b', '#10b981', '#3b82f6']
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            }
+
+            const ctxExp = document.getElementById('expensesChart').getContext('2d');
+            if (!expChart) {
+                expChart = new Chart(ctxExp, {
+                    type: 'bar',
+                    data: {
+                        labels: ['المصاريف التشغيلية المدخلة'],
+                        datasets: [{
+                            label: 'إجمالي المصروفات الحالية',
+                            data: [0],
+                            backgroundColor: ['#ef4444'],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+                });
+            }
+
+            updateUI();
+        }
+    </script>
+</body>
+</html>
