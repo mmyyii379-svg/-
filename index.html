@@ -41,7 +41,15 @@ cursor:pointer;border:none;border-radius:8px;padding:10px
 }
 
 #main-screen{display:none;padding:10px}
-.table-box{background:white;color:black;padding:10px;border-radius:10px;overflow:auto}
+
+.table-box{
+background:white;
+color:black;
+padding:10px;
+border-radius:10px;
+overflow:auto;
+}
+
 table{width:100%;border-collapse:collapse}
 th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
 </style>
@@ -154,17 +162,30 @@ function cleanNumber(v){
 return parseFloat(String(v).replace(/,/g,''))||0;
 }
 
-// ---------------- CLOUD LOAD ----------------
+// ---------------- CLOUD ----------------
 async function fetchCloudData(){
 try{
-let res=await fetch(CLOUD_BIN_URL,{headers:{"X-Master-Key":CLOUD_KEY}});
+let res=await fetch(CLOUD_BIN_URL,{
+headers:{"X-Master-Key":CLOUD_KEY}
+});
+
+if(!res.ok) throw new Error("API ERROR");
+
 let data=await res.json();
 
 db=data.record || {cars:[],expenses:[]};
+if(!db.cars) db.cars=[];
+if(!db.expenses) db.expenses=[];
 
 updateUI();
+
 }catch(e){
 console.log("cloud error",e);
+
+let backup=localStorage.getItem("eco_backup");
+db=backup?JSON.parse(backup):{cars:[],expenses:[]};
+
+updateUI();
 }
 }
 
@@ -209,6 +230,7 @@ saveCloudData();
 // ---------------- STATUS ----------------
 function changeStatusByIndex(i){
 let c=db.cars[i];
+if(!c) return;
 
 if(c.status==="قيد العمل")c.status="جاهزة";
 else if(c.status==="جاهزة")c.status="تم التسليم";
@@ -226,15 +248,22 @@ saveCloudData();
 }
 }
 
-// ---------------- UI ----------------
+// ---------------- UI SAFE ----------------
 function updateUI(){
 
-document.getElementById("count-all").innerText=db.cars.length;
-document.getElementById("count-work").innerText=db.cars.filter(c=>c.status==="قيد العمل").length;
-document.getElementById("count-ready").innerText=db.cars.filter(c=>c.status==="جاهزة").length;
-document.getElementById("count-done").innerText=db.cars.filter(c=>c.status==="تم التسليم").length;
+const set=(id,val)=>{
+let el=document.getElementById(id);
+if(el) el.innerText=val;
+};
+
+set("count-all",db.cars.length);
+set("count-work",db.cars.filter(c=>c.status==="قيد العمل").length);
+set("count-ready",db.cars.filter(c=>c.status==="جاهزة").length);
+set("count-done",db.cars.filter(c=>c.status==="تم التسليم").length);
 
 let body=document.getElementById("car-table-body");
+if(!body) return;
+
 body.innerHTML="";
 
 db.cars.forEach((c,i)=>{
