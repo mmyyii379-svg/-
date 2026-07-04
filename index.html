@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة ورشة ECO الاحترافي</title>
+    <!-- استدعاء التايلوند للألوان والتنسيق السريع مناسب لشاشة الآيباد -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- مكتبة الأيقونات الاحترافية -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- مكتبة الرسوم البيانية الحقيقية والمباشرة -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body id="bodyBg" class="bg-gray-50/70 text-gray-800 min-h-screen flex flex-col justify-center items-center p-4 md:p-6">
+
+    <!-- ========================================== -->
+    <!-- 1️⃣ شاشة تسجيل الدخول الحقيقية (تظهر أولاً) -->
+    <!-- ========================================== -->
+    <div id="loginSection" class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-[0_10px_30px_rgba(0,0,0,0.04)] w-full max-w-md border border-gray-100/70 flex flex-col items-center z-10">
+        
+        <div class="flex items-center gap-2 mb-6 text-emerald-600">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center shadow-inner">
+                <i class="fa-solid fa-car-on text-2xl text-emerald-600"></i>
+            </div>
+            <h1 class="text-4xl font-black tracking-wider text-emerald-600">ECO</h1>
+        </div>
+
+        <h2 class="text-xl font-bold text-gray-800 mb-1">تسجيل الدخول للنظام</h2>
+        <p class="text-gray-400 text-xs mb-6 text-center font-medium">الرجاء إدخال الرمز السري الخاص بالمالك</p>
+
+        <div id="errorMessage" class="w-full bg-red-50 text-red-600 text-xs font-bold p-3.5 rounded-xl mb-4 hidden text-center">
+            ⚠️ اسم المستخدم أو كلمة المرور غير صحيحة!
+        </div>
+
+        <form onsubmit="handleLogin(event)" class="w-full space-y-4">
+            <div class="relative">
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <i class="fa-regular fa-user text-sm"></i>
+                </span>
+                <input type="text" id="usernameInput" required placeholder="اسم المستخدم" 
+                    class="w-full pr-11 pl-4 py-3.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500 text-xs font-medium outline-none transition-all" />
+            </div>
+            
+            <div class="relative">
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <i class="fa-solid fa-lock text-sm"></i>
+                </span>
+                <input type="password" id="passwordInput" required placeholder="كلمة المرور" 
+                    class="w-full pr-11 pl-4 py-3.5 border border-gray-200 rounded-xl focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500 text-xs font-medium outline-none transition-all" />
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold hover:bg-emerald-700 transition duration-200 text-xs shadow-md shadow-emerald-600/10 active:scale-[0.98]">
+                دخول إلى لوحة التحكم
+            </button>
+        </form>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2️⃣ لوحة التحكم الكاملة (تفتح وتظهر بعد تسجيل الدخول) -->
+    <!-- ========================================== -->
+    <div id="dashboardSection" class="w-full max-w-7xl hidden">
+        
+        <header class="mb-6 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center justify-between w-full md:w-auto">
+                <div>
+                    <h1 class="text-2xl font-black text-emerald-600 flex items-center gap-2">
+                        <i class="fa-solid fa-car-on"></i> نظام ورشة ECO الذكي
+                    </h1>
+                    <p class="text-xs text-gray-400 mt-0.5">إدارة السيارات، المصروفات الجانبية، والتقارير المالية</p>
+                </div>
+            </div>
+            
+            <nav class="flex bg-gray-100 p-1.5 rounded-2xl w-full md:w-auto items-center gap-1">
+                <button onclick="switchPage('carsPage', this)" class="flex-1 md:flex-none tab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-emerald-600 text-white shadow-sm">
+                    <i class="fa-solid fa-wrench ml-1"></i> السيارات والصيانة
+                </button>
+                <button onclick="switchPage('expensesPage', this)" class="flex-1 md:flex-none tab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-gray-500 hover:text-emerald-600">
+                    <i class="fa-solid fa-wallet ml-1"></i> المصروفات
+                </button>
+                <button onclick="switchPage('reportsPage', this)" class="flex-1 md:flex-none tab-btn px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-gray-500 hover:text-emerald-600">
+                    <i class="fa-solid fa-chart-line ml-1"></i> التقارير
+                </button>
+                <!-- زر تسجيل الخروج الحقيقي المضاف -->
+                <button onclick="handleLogout()" class="px-3 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition-all">
+                    <i class="fa-solid fa-right-from-bracket"></i> خروج
+                </button>
+            </nav>
+        </header>
+
+        <!-- الصفحة الأولى: إدارة السيارات والصيانة -->
+        <section id="carsPage" class="page-section space-y-6">
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                <h3 class="text-sm font-bold text-gray-700 mb-4"><i class="fa-solid fa-plus text-emerald-600 ml-1"></i>تسجيل سيارة جديدة بالورشة:</h3>
+                <form onsubmit="addCar(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-3">
+                    <input type="text" id="carNum" required placeholder="رقم السيارة" class="border border-gray-200 px-4 py-3 rounded-xl text-xs outline-none focus:border-emerald-500 bg-gray-50/50" />
+                    <input type="text" id="carModel" required placeholder="نوع السيارة (تاهو..)" class="border border-gray-200 px-4 py-3 rounded-xl text-xs outline-none focus:border-emerald-500 bg-gray-50/50" />
+                    <input type="text" id="carOwner" required placeholder="اسم صاحب السيارة" class="border border-gray-200 px-4 py-3 rounded-xl text-xs outline-none focus:border-emerald-500 bg-gray-50/50" />
+                    <input type="tel" id="carPhone" required placeholder="رقم الموبايل" class="border border-gray-200 px-4 py-3 rounded-xl text-xs outline-none focus:border-emerald-500 bg-gray-50/50" />
+                    <input type="text" id="carIssue" required placeholder="نوع العطل" class="border border-gray-200 px-4 py-3 rounded-xl text-xs outline-none focus:border-emerald-500 bg-gray-50/50" />
+                    <input type="date" id="carDate" required class="border border-gray-200 px-4 py-3 rounded-xl text-xs outline-none focus:border-emerald-500 bg-gray-50/50 text-gray-500" />
+
+                    <select id="carStatus" class="border border-gray-200 px-3 py-3 rounded-xl text-xs outline-none focus:border-emerald-500 bg-gray-50/50 text-gray-600 font-bold">
+                        <option value="قيد التصليح">🛠️ قيد التصليح</option>
+                        <option value="تم التصليح">✅ تم التصليح</option>
+                        <option value="تم التسليم">📦 تم التسليم</option>
+                    </select>
+
+                    <div class="flex gap-1">
+                        <input type="text" id="carPrice" required placeholder="تكلفة التصليح" oninput="formatNumberInput(this)" class="border border-gray-200 px-3 py-3 rounded-xl text-xs outline-none focus:border-emerald-500 bg-gray-50/50 flex-grow w-1/2" />
+                        <select id="carCurrency" class="border border-gray-200 px-2 py-3 rounded-xl text-xs outline-none bg-white text-gray-600 font-bold">
+                            <option value="USD">دولار ($)</option>
+                            <option value="IQD">دينار (ع.د)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="bg-emerald-600 text-white text-xs font-bold py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm">
+                        + إضافة للجدول
+                    </button>
+                </form>
+            </div>
+
+            <!-- أزرار الفلترة والفرز السريع للحالات -->
+            <div class="flex flex-wrap gap-2 bg-white p-3.5 rounded-2xl border border-gray-100 shadow-sm">
+                <span class="text-xs font-bold text-gray-400 flex items-center ml-2"><i class="fa-solid fa-list-check ml-1 text-emerald-600"></i> عرض بحسب الحالة:</span>
+                <button onclick="filterByStatus('كل السيارات', this)" class="status-tab-btn px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm">الكل</button>
+                <button onclick="filterByStatus('قيد التصليح', this)" class="status-tab-btn px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold transition-all hover:bg-amber-50 hover:text-amber-700">🛠️ قيد التصليح</button>
+                <button onclick="filterByStatus('تم التصليح', this)" class="status-tab-btn px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold transition-all hover:bg-emerald-50 hover:text-emerald-700">✅ تم التصليح</button>
+                <button onclick="filterByStatus('تم التسليم', this)" class="status-tab-btn px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-bold transition-all hover:bg-blue-50 hover:text-blue-700">📦 تم التسليم</button>
+            </div>
+
+            <!-- جدول السيارات المدخلة -->
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-right whitespace-nowrap">
+                        <thead class="bg-gray-50 text-gray-400 font-bold border-b border-gray-100">
+                            <tr>
+                                <th class="p-4">رقم السيارة</th>
+                                <th class="p-4">نوع السيارة</th>
+                                <th class="p-4">صاحب السيارة</th>
+                                <th class="p-4">رقم الموبايل</th>
+                                <th class="p-4">نوع العطل</th>
+                                <th class="p-4">تاريخ الدخول</th>
+                                <th class="p-4">الحالة (اضغط للتعديل)</th>
+                                <th class="p-4">تكلفة التصليح</th>
+                                <th class="p-4 text-center">التحكم</th>
+                            </tr>
+                        </thead>
+                        <tbody id="carsTable" class="divide-y divide-gray-50 font-medium"></tbody>
+                    </table>
+                    <div id="carsEmpty" class="text-center p-12 text-gray-400 font-medium">لا توجد سيارات مطابقة لهذا البحث حالياً.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- الصفحة الثانية: المصروفات الجانبية للشركة -->
+        <section id="expensesPage" class="page-section hidden space-y-6">
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                <h3 class="text-sm font-bold text-gray-700 mb-4"><i class="fa-solid fa-minus-circle text-red-500 ml-1"></i>تسجيل مصروفات جانبية:</h3>
+                <form onsubmit="addExpense(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <input type="text" id="expTitle" required placeholder="بيان الصرف" class="border border-gray-200 px-4 py-3 rounded-xl text-xs outline-none focus:border-red-500 bg-gray-50/50" />
+                    <div class="flex gap-1">
+                        <input type="text" id="expAmount" required placeholder="المبلغ" oninput="formatNumberInput(this)" class="border border-gray-200 px-3 py-3 rounded-xl text-xs outline-none focus:border-red-500 bg-gray-50/50 flex-grow w-1/2" />
+                        <select id="expCurrency" class="border border-gray-200 px-2 py-3 rounded-xl text-xs outline-none bg-white text-gray-600 font-bold">
+                            <option value="USD">دولار ($)</option>
+                            <option value="IQD">دينار (ع.د)</option>
+                        </select>
+                    </div>
+                    <input type="date" id="expDate" required class="border border-gray-200 px-4 py-3 rounded-xl text-xs outline-none focus:border-red-500 bg-gray-50/50 text-gray-500" />
+                    <button type="submit" class="bg-red-500 text-white text-xs font-bold py-3 rounded-xl hover:bg-red-600 transition shadow-sm">
+                        + تسجيل المصروف
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-right whitespace-nowrap">
+                        <thead class="bg-gray-50 text-gray-400 font-bold border-b border-gray-100">
+                            <tr>
+                                <th class="p-4">بيان الصرف</th>
+                                <th class="p-4">المبلغ</th>
+                                <th class="p-4">التاريخ</th>
+                                <th class="p-4 text-center">التحكم</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTable" class="divide-y divide-gray-50 font-medium"></tbody>
+                    </table>
+                    <div id="expensesEmpty" class="text-center p-12 text-gray-400 font-medium">لا توجد مصروفات مسجلة.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- الصفحة الثالثة: التقارير والفلترة المالية والمخطط المالي -->
+        <section id="reportsPage" class="page-section hidden space-y-6">
+            <div class="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h3 class="text-sm font-bold text-gray-700"><i class="fa-solid fa-filter text-emerald-600 ml-1"></i>فلترة وتصفية التقارير الحية:</h3>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <select id="filterType" onchange="applyFilter()" class="border border-gray-200 px-4 py-2.5 rounded-xl text-xs font-bold outline-none bg-white text-gray-600">
+                        <option value="all" selected>عرض كل الأوقات</option>
+                        <option value="today">اليوم الحالي</option>
+                        <option value="month">الشهر الحالي</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <p class="text-xs text-gray-400 font-bold mb-1">إجمالي دخل الورشة (السيارات)</p>
+                    <h3 id="repIncome" class="text-xl font-black text-emerald-600">$0 | 0 ع.د</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <p class="text-xs text-gray-400 font-bold mb-1">إجمالي المصروفات الجانبية</p>
+                    <h3 id="repExpenses" class="text-xl font-black text-red-500">$0 | 0 ع.د</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <p class="text-xs text-gray-400 font-bold mb-1">صافي الأرباح والخسائر الحالية</p>
+                    <h3 id="repProfit" class="text-xl font-black text-gray-800">$0 | 0 ع.د</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm max-w-2xl mx-auto">
+                <h4 class="text-xs font-bold text-gray-700 mb-4 text-center">مخطط المقارنة الحية (الدخل vs المصروفات)</h4>
+                <div class="h-64 relative">
+                    <canvas id="reportingChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- نظام التشغيل والربط المالي التلقائي والتخزين الدائم (JavaScript) -->
+    <!-- ========================================== -->
+    <script>
+        // تحميل البيانات المحفوظة مسبقاً من الذاكرة الدائمة عند فتح الصفحة
+        let cars = JSON.parse(localStorage.getItem('eco_cars')) || [];
+        let expenses = JSON.parse(localStorage.getItem('eco_expenses')) || [];
+        let globalChart = null;
+        let currentFilter = 'all';
+        let selectedStatusFilter = 'كل السيارات';
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            if(document.getElementById('carDate')) document.getElementById('carDate').value = today;
+            if(document.getElementById('expDate')) document.getElementById('expDate').value = today;
+
+            // التحقق إذا كان المستخدم مسجل دخوله مسبقاً لعدم إجباره على إدخال الرمز في كل مرة
+            if(sessionStorage.getItem('eco_logged_in') === 'true') {
+                showDashboard();
+            }
+        });
+
+        function formatNumberInput(input) {
+            let value = input.value.replace(/,/g, '');
+            if(!isNaN(value) && value !== '') {
+                input.value = parseFloat(value).toLocaleString('en-US');
+            }
+        }
+
+        function getCleanNumber(str) {
+            return parseFloat(str.replace(/,/g, '')) || 0;
+        }
+
+        // دالة إظهار لوحة التحكم وتعديل الستايل للآيباد
+        function showDashboard() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            const body = document.getElementById('bodyBg');
+            body.classList.remove('justify-center', 'items-center', 'p-4');
+            body.classList.add('block');
+            renderCars();
+            renderExpenses();
+            updateReportsAndChart();
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('usernameInput').value.trim();
+            const pass = document.getElementById('passwordInput').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+
+            if (user === "منتظر" && pass === "eco2026") {
+                errorDiv.classList.add('hidden');
+                sessionStorage.setItem('eco_logged_in', 'true'); // حفظ حالة الجلسة الحالية
+                showDashboard();
+            } else {
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        // دالة تسجيل الخروج الحقيقية وإعادة القفل بدون مسح البيانات المحفوظة
+        function handleLogout() {
+            sessionStorage.removeItem('eco_logged_in');
+            window.location.reload(); // إعادة تحميل الصفحة لقفل النظام فوراً
+        }
+
+        // دالة حفظ البيانات في الذاكرة الدائمة للجهاز (Local Storage)
+        function saveToLocalStorage() {
+            localStorage.setItem('eco_cars', JSON.stringify(cars));
+            localStorage.setItem('eco_expenses', JSON.stringify(expenses));
+        }
+
+        function switchPage(pageId, btn) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
+                b.classList.add('text-gray-500', 'hover:text-emerald-600');
+            });
+            btn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+            btn.classList.remove('text-gray-500', 'hover:text-emerald-600');
+
+            if(pageId === 'reportsPage') { updateReportsAndChart(); }
+        }
+
+        function addCar(e) {
+            e.preventDefault();
+            const car = {
+                id: Date.now(),
+                num: document.getElementById('carNum').value.trim(),
+                model: document.getElementById('carModel').value.trim(),
+                owner: document.getElementById('carOwner').value.trim(),
+                phone: document.getElementById('carPhone').value.trim(),
+                issue: document.getElementById('carIssue').value.trim(),
+                date: document.getElementById('carDate').value,
+                status: document.getElementById('carStatus').value, 
+                price: getCleanNumber(document.getElementById('carPrice').value),
+                currency: document.getElementById('carCurrency').value
+            };
+            cars.push(car);
+            e.target.reset();
+            
+            document.getElementById('carDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('carStatus').value = "قيد التصليح";
+            
+            saveToLocalStorage(); // حفظ دائم
+            renderCars();
+            updateReportsAndChart();
+        }
+
+        function updateCarStatusInTable(id, selectElement) {
+            const newStatus = selectElement.value;
+            const carIndex = cars.findIndex(c => c.id === id);
+            if(carIndex !== -1) {
+                cars[carIndex].status = newStatus;
+                saveToLocalStorage(); // حفظ دائم بعد التعديل
+                renderCars();
+                updateReportsAndChart();
+            }
+        }
+
+        function filterByStatus(status, btn) {
+            selectedStatusFilter = status;
+            document.querySelectorAll('.status-tab-btn').forEach(b => {
+                b.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
+                b.classList.add('bg-gray-100', 'text-gray-600');
+            });
+            btn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+            btn.classList.remove('bg-gray-100', 'text-gray-600');
+            renderCars();
+        }
+
+        function deleteCar(id) {
+            if(confirm("هل أنت متأكد من حذف هذه السيارة نهائياً؟")) {
+                cars = cars.filter(c => c.id !== id);
+                saveToLocalStorage(); // تحديث الحفظ الدائم
+                renderCars();
+                updateReportsAndChart();
+            }
+        }
+
+        function addExpense(e) {
+            e.preventDefault();
+            const exp = {
+                id: Date.now(),
+                title: document.getElementById('expTitle').value.trim(),
+                amount: getCleanNumber(document.getElementById('expAmount').value),
+                currency: document.getElementById('expCurrency').value,
+                date: document.getElementById('expDate').value
+            };
+            expenses.push(exp);
+            e.target.reset();
+            document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+            
+            saveToLocalStorage(); // حفظ دائم
+            renderExpenses();
+            updateReportsAndChart();
+        }
+
+        function deleteExpense(id) {
+            if(confirm("هل أنت متأكد من حذف هذا المصروف؟")) {
+                expenses = expenses.filter(e => e.id !== id);
+                saveToLocalStorage(); // تحديث الحفظ الدائم
+                renderExpenses();
+                updateReportsAndChart();
+            }
+        }
+
+        function renderCars() {
+            const tbody = document.getElementById('carsTable');
+            tbody.innerHTML = '';
+
+            let filtered = cars.filter(c => {
+                if(selectedStatusFilter === 'كل السيارات') return true;
+                return c.status === selectedStatusFilter;
+            });
+
+            if(filtered.length === 0) {
+                document.getElementById('carsEmpty').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('carsEmpty').classList.add('hidden');
+            
+            filtered.forEach(c => {
+                let bgStyle = "";
+                if(c.status === "قيد التصليح") bgStyle = "bg-amber-50 text-amber-700 border-amber-200";
+                if(c.status === "تم التصليح") bgStyle = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                if(c.status === "تم التسليم") bgStyle = "bg-blue-50 text-blue-700 border-blue-200";
+
+                let selectHTML = `
+                    <select onchange="updateCarStatusInTable(${c.id}, this)" class="${bgStyle} px-2.5 py-1.5 rounded-xl border font-bold text-xs outline-none cursor-pointer">
+                        <option value="قيد التصليح" ${c.status === 'قيد التصليح' ? 'selected' : ''}>🛠️ قيد التصليح</option>
+                        <option value="تم التصليح" ${c.status === 'تم التصليح' ? 'selected' : ''}>✅ تم التصليح</option>
+                        <option value="تم التسليم" ${c.status === 'تم التسليم' ? 'selected' : ''}>📦 تم التسليم</option>
+                    </select>
+                `;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="p-4 font-bold text-gray-800">${c.num}</td>
+                        <td class="p-4 font-bold text-emerald-700">${c.model}</td>
+                        <td class="p-4">${c.owner}</td>
+                        <td class="p-4 text-gray-500">${c.phone}</td>
+                        <td class="p-4"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-lg">${c.issue}</span></td>
+                        <td class="p-4 text-gray-400 font-bold">${c.date}</td>
+                        <td class="p-4">${selectHTML}</td>
+                        <td class="p-4 font-bold ${c.currency==='USD'?'text-emerald-600':'text-blue-600'}">
+                            ${c.price.toLocaleString()} ${c.currency==='USD'?'$':'ع.د'}
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteCar(${c.id})" class="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl font-bold transition">حذف</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function renderExpenses() {
+            const tbody = document.getElementById('expensesTable');
+            tbody.innerHTML = '';
+            if(expenses.length === 0) {
+                document.getElementById('expensesEmpty').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('expensesEmpty').classList.add('hidden');
+            expenses.forEach(e => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="p-4 font-bold text-gray-800">${e.title}</td>
+                        <td class="p-4 font-bold text-red-500">${e.amount.toLocaleString()} ${e.currency==='USD'?'$':'ع.د'}</td>
+                        <td class="p-4 text-gray-400 font-bold">${e.date}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteExpense(${e.id})" class="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl font-bold transition">حذف</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function applyFilter() {
+            currentFilter = document.getElementById('filterType').value;
+            updateReportsAndChart();
+        }
+
+        function updateReportsAndChart() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const currentMonthStr = todayStr.substring(0, 7);
+
+            let filteredCars = cars.filter(c => {
+                if (currentFilter === 'today') return c.date === todayStr;
+                if (currentFilter === 'month') return c.date.startsWith(currentMonthStr);
+                return true;
+            });
+
+            let filteredExpenses = expenses.filter(e => {
+                if (currentFilter === 'today') return e.date === todayStr;
+                if (currentFilter === 'month') return e.date.startsWith(currentMonthStr);
+                return true;
+            });
+
+            let incomeUSD = filteredCars.filter(c => c.currency==='USD').reduce((sum, c) => sum + c.price, 0);
+            let incomeIQD = filteredCars.filter(c => c.currency==='IQD').reduce((sum, c) => sum + c.price, 0);
+
+            let expenseUSD = filteredExpenses.filter(e => e.currency==='USD').reduce((sum, e) => sum + e.amount, 0);
+            let expenseIQD = filteredExpenses.filter(e => e.currency==='IQD').reduce((sum, e) => sum + e.amount, 0);
+
+            let profitUSD = incomeUSD - expenseUSD;
+            let profitIQD = incomeIQD - expenseIQD;
+
+            document.getElementById('repIncome').innerText = `$${incomeUSD.toLocaleString()} | ${incomeIQD.toLocaleString()} ع.د`;
+            document.getElementById('repExpenses').innerText = `$${expenseUSD.toLocaleString()} | ${expenseIQD.toLocaleString()} ع.د`;
+            document.getElementById('repProfit').innerText = `$${profitUSD.toLocaleString()} | ${profitIQD.toLocaleString()} ع.د`;
+
+            const canvas = document.getElementById('reportingChart');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (globalChart) { globalChart.destroy(); }
+
+            globalChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['إجمالي الدخل ($)', 'المصروفات الجانبية ($)', 'إجمالي الدخل (ع.د)', 'المصروفات الجانبية (ع.د)'],
+                    datasets: [{
+                        data: [incomeUSD, expenseUSD, incomeIQD, expenseIQD],
+                        backgroundColor: ['#10b981', '#f43f5e', '#3b82f6', '#a855f7'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { cutout: '70%', responsive: true, maintainAspectRatio: false }
+            });
+        }
+    </script>
+</body>
+</html>
