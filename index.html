@@ -1,72 +1,53 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>ECO - النظام المتكامل</title>
-    <style>
-        body { font-family: sans-serif; background: #f1f5f9; padding: 10px; }
-        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; }
-        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; }
-        .finance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .fin-card { background: #1e293b; color: white; padding: 10px; border-radius: 10px; text-align: center; }
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
-        th, td { padding: 8px; border: 1px solid #eee; text-align: center; font-size: 12px; }
-    </style>
+<meta charset="UTF-8">
+<title>نظام ECO البسيط</title>
+<style>
+    body { font-family: sans-serif; background: #eee; padding: 10px; }
+    .box { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+    input, select, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
+    button { background: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; }
+    .sum { display: flex; gap: 5px; margin-bottom: 10px; }
+    .sum div { flex: 1; background: #333; color: white; padding: 10px; border-radius: 5px; text-align: center; }
+</style>
 </head>
 <body>
 
-    <div class="finance-grid">
-        <div class="fin-card"><h3>الدينار (IQD)</h3><p id="total-iqd">0 د.ع</p></div>
-        <div class="fin-card"><h3>الدولار (USD)</h3><p id="total-usd">0 $</p></div>
-    </div>
+<div class="sum">
+    <div>دينار: <span id="sum-iqd">0</span></div>
+    <div>دولار: <span id="sum-usd">0</span></div>
+</div>
 
-    <div class="card">
-        <h4>إضافة (سيارة أو مصروف)</h4>
-        <input type="text" id="desc" placeholder="الاسم أو التفاصيل">
-        <input type="number" id="cost" placeholder="المبلغ">
-        <select id="type"><option value="سيارة">سيارة</option><option value="مصروف">مصروف</option></select>
-        <select id="curr"><option value="IQD">دينار عراقي</option><option value="USD">دولار أمريكي</option></select>
-        <button onclick="addEntry()">حفظ في السجل</button>
-    </div>
+<div class="box">
+    <input id="n" placeholder="الاسم/السيارة">
+    <input id="m" type="number" placeholder="المبلغ">
+    <select id="c"><option value="IQD">دينار</option><option value="USD">دولار</option></select>
+    <button onclick="add()">إضافة</button>
+</div>
 
-    <table id="myTable">
-        <tr><th>النوع</th><th>البيان</th><th>المبلغ</th><th>العملة</th><th>X</th></tr>
-    </table>
+<div id="list"></div>
 
 <script>
-    let data = JSON.parse(localStorage.getItem('eco_all_data')) || [];
-
-    function addEntry() {
-        data.push({
-            id: Date.now(),
-            type: document.getElementById('type').value,
-            desc: document.getElementById('desc').value,
-            cost: parseFloat(document.getElementById('cost').value || 0),
-            curr: document.getElementById('curr').value
-        });
-        localStorage.setItem('eco_all_data', JSON.stringify(data));
-        render();
+    let d = JSON.parse(localStorage.getItem('data') || '[]');
+    function add() {
+        d.push({n: document.getElementById('n').value, m: document.getElementById('m').value, c: document.getElementById('c').value});
+        localStorage.setItem('data', JSON.stringify(d));
+        up();
     }
-
-    function del(id) {
-        data = data.filter(e => e.id !== id);
-        localStorage.setItem('eco_all_data', JSON.stringify(data));
-        render();
-    }
-
-    function render() {
+    function up() {
         let iqd = 0, usd = 0;
-        const t = document.getElementById('myTable');
-        t.innerHTML = "<tr><th>النوع</th><th>البيان</th><th>المبلغ</th><th>العملة</th><th>X</th></tr>";
-        data.forEach(e => {
-            if(e.curr === 'IQD') iqd += e.cost; else usd += e.cost;
-            t.innerHTML += `<tr><td>${e.type}</td><td>${e.desc}</td><td>${e.cost}</td><td>${e.curr}</td><td><button onclick="del(${e.id})" style="background:red; color:white; border:none; padding:3px;">X</button></td></tr>`;
+        let html = "";
+        d.forEach((v, i) => {
+            if(v.c === 'IQD') iqd += +v.m; else usd += +v.m;
+            html += `<div class="box">${v.n} | ${v.m} ${v.c} <button onclick="del(${i})" style="background:red">حذف</button></div>`;
         });
-        document.getElementById('total-iqd').innerText = iqd.toLocaleString() + ' د.ع';
-        document.getElementById('total-usd').innerText = usd.toLocaleString() + ' $';
+        document.getElementById('list').innerHTML = html;
+        document.getElementById('sum-iqd').innerText = iqd;
+        document.getElementById('sum-usd').innerText = usd;
     }
-    render();
+    function del(i) { d.splice(i, 1); localStorage.setItem('data', JSON.stringify(d)); up(); }
+    up();
 </script>
 </body>
 </html>
