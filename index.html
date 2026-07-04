@@ -1,315 +1,70 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ECO System</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-:root {
-    --bg-dark:#0f172a;
-    --panel-dark:#1e293b;
-    --primary-green:#00a86b;
-    --primary-blue:#38bdf8;
-}
-
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}
-body{background:var(--bg-dark);color:white}
-
-/* LOGIN */
-#login-screen{
-height:100vh;display:flex;justify-content:center;align-items:center;
-background:radial-gradient(circle,#1e293b,#0f172a);
-flex-direction:column;
-}
-
-.login-card{
-background:rgba(30,41,59,.7);
-padding:25px;border-radius:15px;width:320px;text-align:center
-}
-
-input,select{
-width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none
-}
-
-button{cursor:pointer;border:none;border-radius:8px;padding:10px}
-
-/* MAIN */
-#main-screen{display:none;padding:10px}
-
-.table-box{
-background:white;color:black;padding:10px;border-radius:10px;overflow:auto
-}
-
-table{width:100%;border-collapse:collapse}
-th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
-</style>
+    <meta charset="UTF-8">
+    <title>ECO - إدارة الصيانة</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 10px; }
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: center; }
+        th { background: #f8f9fa; }
+    </style>
 </head>
-
 <body>
 
-<!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-card">
-    <h3>ECO LOGIN</h3>
-    <input id="username" placeholder="user">
-    <input id="password" type="password" placeholder="pass">
-    <button onclick="handleLogin()">دخول</button>
-    <p id="error-message" style="color:red;display:none">خطأ</p>
-  </div>
+<div class="card">
+    <input type="text" id="car" placeholder="السيارة">
+    <input type="text" id="plate" placeholder="رقم اللوحة">
+    <input type="text" id="owner" placeholder="اسم الزبون">
+    <input type="text" id="work" placeholder="العمل المطلوب">
+    <button onclick="saveData()">حفظ البيانات سحابياً</button>
 </div>
 
-<!-- MAIN -->
-<div id="main-screen">
-
-<h3>Dashboard</h3>
-
-<button onclick="fetchCloudData()">تحديث</button>
-<button onclick="toggleMenu()">Menu</button>
-
-<div>
-السيارات: <span id="count-all">0</span> |
-قيد العمل: <span id="count-work">0</span> |
-جاهزة: <span id="count-ready">0</span> |
-تم: <span id="count-done">0</span>
-</div>
-
-<hr>
-
-<!-- FORM -->
-<form onsubmit="addCar(event)">
-<input id="car_model" placeholder="car" required>
-<input id="plate_number" placeholder="plate" required>
-<input id="phone" placeholder="phone" required>
-<input id="repair_type" placeholder="repair" required>
-<input id="cost" placeholder="cost" oninput="formatCurrencyInput(this)" required>
-
-<select id="car_currency">
-<option value="IQD">IQD</option>
-<option value="USD">USD</option>
-</select>
-
-<select id="car_status">
-<option value="قيد العمل">قيد العمل</option>
-<option value="جاهزة">جاهزة</option>
-<option value="تم التسليم">تم التسليم</option>
-</select>
-
-<button>حفظ</button>
-</form>
-
-<!-- TABLE -->
-<div class="table-box">
-<table>
-<thead>
-<tr>
-<th>السيارة</th>
-<th>التصليح</th>
-<th>اللوحة</th>
-<th>الكلفة</th>
-<th>الحالة</th>
-</tr>
-</thead>
-
-<tbody id="car-table-body"></tbody>
+<table id="myTable">
+    <tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>حذف</th></tr>
 </table>
-</div>
-
-<!-- CHART -->
-<canvas id="financialChart" height="120"></canvas>
-
-</div>
 
 <script>
+    // رابط السيرفر السحابي الثابت
+    const API_URL = "https://api.jsonbin.io/v3/b/66861cbfe41b4d34e40d5dbd?meta=false";
 
-const CLOUD_BIN_URL="https://api.jsonbin.io/v3/b/6686bf54ad19ca34f882a170";
-const CLOUD_KEY="$2a$10$Wp8U8H0eGMc7mC2YpX2.0Ofg/ZunC9A8qXwTymUf5Q18PqMRE3lW2";
+    async function loadTable() {
+        try {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            const table = document.getElementById("myTable");
+            table.innerHTML = "<tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>حذف</th></tr>";
+            data.forEach((item, index) => {
+                table.innerHTML += `<tr><td>${item.car}</td><td>${item.plate}</td><td>${item.owner}</td><td>${item.work}</td><td><button onclick="del(${index})" style="background:red; color:white; border:none; padding:5px;">X</button></td></tr>`;
+            });
+        } catch (e) { alert("تأكد من الاتصال بالإنترنت!"); }
+    }
 
-let db={cars:[],expenses:[]};
-let chart=null;
+    async function saveData() {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        data.push({
+            car: document.getElementById('car').value,
+            plate: document.getElementById('plate').value,
+            owner: document.getElementById('owner').value,
+            work: document.getElementById('work').value
+        });
+        await fetch(API_URL, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+        loadTable();
+    }
 
-/* ---------------- LOGIN ---------------- */
-function handleLogin(){
-const u=document.getElementById("username").value;
-const p=document.getElementById("password").value;
+    async function del(index) {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        data.splice(index, 1);
+        await fetch(API_URL, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+        loadTable();
+    }
 
-if((u==="منتظر"||u==="admin") && p==="eco2026"){
-sessionStorage.setItem("eco","1");
-showApp();
-}else{
-document.getElementById("error-message").style.display="block";
-}
-}
-
-function showApp(){
-document.getElementById("login-screen").style.display="none";
-document.getElementById("main-screen").style.display="block";
-fetchCloudData();
-}
-
-window.onload=()=>{
-if(sessionStorage.getItem("eco")=="1") showApp();
-}
-
-/* ---------------- SAFE HELPERS ---------------- */
-function el(id){return document.getElementById(id);}
-
-/* ---------------- FORMAT ---------------- */
-function formatCurrencyInput(input){
-let v=input.value.replace(/,/g,'');
-if(v===''||isNaN(v)) return;
-input.value=Number(v).toLocaleString();
-}
-
-function cleanNumber(v){
-return parseFloat(String(v).replace(/,/g,''))||0;
-}
-
-/* ---------------- CLOUD ---------------- */
-async function fetchCloudData(){
-try{
-let res=await fetch(CLOUD_BIN_URL,{
-headers:{"X-Master-Key":CLOUD_KEY}
-});
-
-if(!res.ok) throw new Error("API");
-
-let data=await res.json();
-
-db=data.record || {cars:[],expenses:[]};
-db.cars ||= [];
-db.expenses ||= [];
-
-updateUI();
-initChart();
-
-}catch(e){
-console.log("cloud error",e);
-
-let backup=localStorage.getItem("eco_backup");
-db=backup?JSON.parse(backup):{cars:[],expenses:[]};
-
-updateUI();
-initChart();
-}
-}
-
-/* ---------------- SAVE ---------------- */
-async function saveCloudData(){
-localStorage.setItem("eco_backup",JSON.stringify(db));
-
-try{
-await fetch(CLOUD_BIN_URL,{
-method:"PUT",
-headers:{
-"Content-Type":"application/json",
-"X-Master-Key":CLOUD_KEY
-},
-body:JSON.stringify(db)
-});
-}catch(e){}
-}
-
-/* ---------------- ADD ---------------- */
-function addCar(e){
-e.preventDefault();
-
-db.cars.push({
-id:Date.now(),
-model:car_model.value,
-plate:plate_number.value,
-phone:phone.value,
-repairType:repair_type.value,
-cost:cleanNumber(cost.value),
-currency:car_currency.value,
-status:car_status.value
-});
-
-e.target.reset();
-updateUI();
-saveCloudData();
-}
-
-/* ---------------- STATUS ---------------- */
-function changeStatus(i){
-let c=db.cars[i];
-if(!c) return;
-
-if(c.status==="قيد العمل")c.status="جاهزة";
-else if(c.status==="جاهزة")c.status="تم التسليم";
-
-updateUI();
-saveCloudData();
-}
-
-/* ---------------- DELETE ---------------- */
-function deleteItem(id){
-db.cars=db.cars.filter(c=>c.id!==id);
-updateUI();
-saveCloudData();
-}
-
-/* ---------------- UI ---------------- */
-function updateUI(){
-
-const safe=(id)=>document.getElementById(id);
-
-if(!safe("car-table-body")) return;
-
-safe("count-all").innerText=db.cars.length;
-safe("count-work").innerText=db.cars.filter(c=>c.status==="قيد العمل").length;
-safe("count-ready").innerText=db.cars.filter(c=>c.status==="جاهزة").length;
-safe("count-done").innerText=db.cars.filter(c=>c.status==="تم التسليم").length;
-
-let body=safe("car-table-body");
-body.innerHTML="";
-
-db.cars.forEach((c,i)=>{
-body.innerHTML+=`
-<tr>
-<td>${c.model}<br><small>${c.phone}</small></td>
-<td>${c.repairType}</td>
-<td>${c.plate}</td>
-<td>${Number(c.cost).toLocaleString()}</td>
-<td>
-${c.status}<br>
-<button onclick="changeStatus(${i})">تغيير</button>
-<button onclick="deleteItem(${c.id})">حذف</button>
-</td>
-</tr>
-`;
-});
-}
-
-/* ---------------- CHART SAFE ---------------- */
-function initChart(){
-let ctx=document.getElementById("financialChart");
-if(!ctx) return;
-
-let income=db.cars.reduce((a,b)=>a+b.cost,0);
-
-if(!chart){
-chart=new Chart(ctx,{
-type:"bar",
-data:{
-labels:["Income"],
-datasets:[{data:[income]}]
-}
-});
-}else{
-chart.data.datasets[0].data=[income];
-chart.update();
-}
-}
-
-/* ---------------- MENU (placeholder) ---------------- */
-function toggleMenu(){
-alert("menu working");
-}
-
+    loadTable();
 </script>
-
 </body>
 </html>
