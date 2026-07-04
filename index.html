@@ -6,7 +6,6 @@
 <title>ECO System</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://giscus.app/libs/v1/jsonbin.js"></script>
 
 <style>
 :root {
@@ -14,13 +13,12 @@
     --panel-dark:#1e293b;
     --primary-green:#00a86b;
     --primary-blue:#38bdf8;
-    --text-light:#f8fafc;
-    --text-muted:#94a3b8;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;font-family:Arial}
 body{background:var(--bg-dark);color:white}
 
+/* LOGIN */
 #login-screen{
 height:100vh;display:flex;justify-content:center;align-items:center;
 background:radial-gradient(circle,#1e293b,#0f172a);
@@ -36,18 +34,13 @@ input,select{
 width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none
 }
 
-button{
-cursor:pointer;border:none;border-radius:8px;padding:10px
-}
+button{cursor:pointer;border:none;border-radius:8px;padding:10px}
 
+/* MAIN */
 #main-screen{display:none;padding:10px}
 
 .table-box{
-background:white;
-color:black;
-padding:10px;
-border-radius:10px;
-overflow:auto;
+background:white;color:black;padding:10px;border-radius:10px;overflow:auto
 }
 
 table{width:100%;border-collapse:collapse}
@@ -59,20 +52,22 @@ th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
 
 <!-- LOGIN -->
 <div id="login-screen">
-    <div class="login-card">
-        <h3>ECO LOGIN</h3>
-        <input id="username" placeholder="user">
-        <input id="password" type="password" placeholder="pass">
-        <button onclick="handleLogin()">دخول</button>
-        <p id="error-message" style="color:red;display:none">خطأ</p>
-    </div>
+  <div class="login-card">
+    <h3>ECO LOGIN</h3>
+    <input id="username" placeholder="user">
+    <input id="password" type="password" placeholder="pass">
+    <button onclick="handleLogin()">دخول</button>
+    <p id="error-message" style="color:red;display:none">خطأ</p>
+  </div>
 </div>
 
 <!-- MAIN -->
 <div id="main-screen">
 
 <h3>Dashboard</h3>
+
 <button onclick="fetchCloudData()">تحديث</button>
+<button onclick="toggleMenu()">Menu</button>
 
 <div>
 السيارات: <span id="count-all">0</span> |
@@ -83,6 +78,7 @@ th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
 
 <hr>
 
+<!-- FORM -->
 <form onsubmit="addCar(event)">
 <input id="car_model" placeholder="car" required>
 <input id="plate_number" placeholder="plate" required>
@@ -104,6 +100,7 @@ th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
 <button>حفظ</button>
 </form>
 
+<!-- TABLE -->
 <div class="table-box">
 <table>
 <thead>
@@ -115,9 +112,13 @@ th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
 <th>الحالة</th>
 </tr>
 </thead>
+
 <tbody id="car-table-body"></tbody>
 </table>
 </div>
+
+<!-- CHART -->
+<canvas id="financialChart" height="120"></canvas>
 
 </div>
 
@@ -127,31 +128,35 @@ const CLOUD_BIN_URL="https://api.jsonbin.io/v3/b/6686bf54ad19ca34f882a170";
 const CLOUD_KEY="$2a$10$Wp8U8H0eGMc7mC2YpX2.0Ofg/ZunC9A8qXwTymUf5Q18PqMRE3lW2";
 
 let db={cars:[],expenses:[]};
+let chart=null;
 
-// ---------------- LOGIN ----------------
+/* ---------------- LOGIN ---------------- */
 function handleLogin(){
 const u=document.getElementById("username").value;
 const p=document.getElementById("password").value;
 
 if((u==="منتظر"||u==="admin") && p==="eco2026"){
 sessionStorage.setItem("eco","1");
-document.getElementById("login-screen").style.display="none";
-document.getElementById("main-screen").style.display="block";
-fetchCloudData();
+showApp();
 }else{
 document.getElementById("error-message").style.display="block";
 }
 }
 
-window.onload=()=>{
-if(sessionStorage.getItem("eco")=="1"){
+function showApp(){
 document.getElementById("login-screen").style.display="none";
 document.getElementById("main-screen").style.display="block";
 fetchCloudData();
 }
+
+window.onload=()=>{
+if(sessionStorage.getItem("eco")=="1") showApp();
 }
 
-// ---------------- FORMAT ----------------
+/* ---------------- SAFE HELPERS ---------------- */
+function el(id){return document.getElementById(id);}
+
+/* ---------------- FORMAT ---------------- */
 function formatCurrencyInput(input){
 let v=input.value.replace(/,/g,'');
 if(v===''||isNaN(v)) return;
@@ -162,22 +167,23 @@ function cleanNumber(v){
 return parseFloat(String(v).replace(/,/g,''))||0;
 }
 
-// ---------------- CLOUD ----------------
+/* ---------------- CLOUD ---------------- */
 async function fetchCloudData(){
 try{
 let res=await fetch(CLOUD_BIN_URL,{
 headers:{"X-Master-Key":CLOUD_KEY}
 });
 
-if(!res.ok) throw new Error("API ERROR");
+if(!res.ok) throw new Error("API");
 
 let data=await res.json();
 
 db=data.record || {cars:[],expenses:[]};
-if(!db.cars) db.cars=[];
-if(!db.expenses) db.expenses=[];
+db.cars ||= [];
+db.expenses ||= [];
 
 updateUI();
+initChart();
 
 }catch(e){
 console.log("cloud error",e);
@@ -186,10 +192,11 @@ let backup=localStorage.getItem("eco_backup");
 db=backup?JSON.parse(backup):{cars:[],expenses:[]};
 
 updateUI();
+initChart();
 }
 }
 
-// ---------------- SAVE ----------------
+/* ---------------- SAVE ---------------- */
 async function saveCloudData(){
 localStorage.setItem("eco_backup",JSON.stringify(db));
 
@@ -202,12 +209,10 @@ headers:{
 },
 body:JSON.stringify(db)
 });
-}catch(e){
-console.log("save error",e);
-}
+}catch(e){}
 }
 
-// ---------------- ADD CAR ----------------
+/* ---------------- ADD ---------------- */
 function addCar(e){
 e.preventDefault();
 
@@ -227,8 +232,8 @@ updateUI();
 saveCloudData();
 }
 
-// ---------------- STATUS ----------------
-function changeStatusByIndex(i){
+/* ---------------- STATUS ---------------- */
+function changeStatus(i){
 let c=db.cars[i];
 if(!c) return;
 
@@ -239,31 +244,26 @@ updateUI();
 saveCloudData();
 }
 
-// ---------------- DELETE ----------------
+/* ---------------- DELETE ---------------- */
 function deleteItem(id){
-if(confirm("حذف؟")){
 db.cars=db.cars.filter(c=>c.id!==id);
 updateUI();
 saveCloudData();
 }
-}
 
-// ---------------- UI SAFE ----------------
+/* ---------------- UI ---------------- */
 function updateUI(){
 
-const set=(id,val)=>{
-let el=document.getElementById(id);
-if(el) el.innerText=val;
-};
+const safe=(id)=>document.getElementById(id);
 
-set("count-all",db.cars.length);
-set("count-work",db.cars.filter(c=>c.status==="قيد العمل").length);
-set("count-ready",db.cars.filter(c=>c.status==="جاهزة").length);
-set("count-done",db.cars.filter(c=>c.status==="تم التسليم").length);
+if(!safe("car-table-body")) return;
 
-let body=document.getElementById("car-table-body");
-if(!body) return;
+safe("count-all").innerText=db.cars.length;
+safe("count-work").innerText=db.cars.filter(c=>c.status==="قيد العمل").length;
+safe("count-ready").innerText=db.cars.filter(c=>c.status==="جاهزة").length;
+safe("count-done").innerText=db.cars.filter(c=>c.status==="تم التسليم").length;
 
+let body=safe("car-table-body");
 body.innerHTML="";
 
 db.cars.forEach((c,i)=>{
@@ -275,14 +275,38 @@ body.innerHTML+=`
 <td>${Number(c.cost).toLocaleString()}</td>
 <td>
 ${c.status}<br>
-
-<button onclick="changeStatusByIndex(${i})">تغيير</button>
+<button onclick="changeStatus(${i})">تغيير</button>
 <button onclick="deleteItem(${c.id})">حذف</button>
-
 </td>
 </tr>
 `;
 });
+}
+
+/* ---------------- CHART SAFE ---------------- */
+function initChart(){
+let ctx=document.getElementById("financialChart");
+if(!ctx) return;
+
+let income=db.cars.reduce((a,b)=>a+b.cost,0);
+
+if(!chart){
+chart=new Chart(ctx,{
+type:"bar",
+data:{
+labels:["Income"],
+datasets:[{data:[income]}]
+}
+});
+}else{
+chart.data.datasets[0].data=[income];
+chart.update();
+}
+}
+
+/* ---------------- MENU (placeholder) ---------------- */
+function toggleMenu(){
+alert("menu working");
 }
 
 </script>
