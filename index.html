@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECO - نظام إدارة صيانة السيارات المتكامل</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg-dark: #0f172a; --panel-dark: #1e293b; --primary-green: #00a86b; --primary-blue: #38bdf8; --text-light: #f8fafc; --text-muted: #94a3b8; }
+        * { box-sizing: border-box; font-family: sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--bg-dark); color: var(--text-light); min-height: 100vh; }
+        .modern-input, .modern-select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #f8fafc; color: #1e293b;}
+        .modern-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; color: white; margin-top: 5px; }
+        .btn-green { background: var(--primary-green); }
+        .app-section { display: none; padding: 15px; }
+        .app-section.active { display: block; }
+        table { width: 100%; border-collapse: collapse; background: white; color: #1e293b; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div id="main-screen">
+        <div id="cars-section" class="app-section active">
+            <div class="form-box">
+                <h4>➕ إضافة سيارة مع اختيار العملة</h4>
+                <form id="car-form" onsubmit="addCar(event)">
+                    <input type="text" id="car_model" class="modern-input" placeholder="نوع السيارة" required>
+                    <input type="text" id="cost" class="modern-input" placeholder="المبلغ" required>
+                    
+                    <!-- إضافة حقل العملة -->
+                    <select id="currency" class="modern-select">
+                        <option value="د.ع">دينار عراقي (د.ع)</option>
+                        <option value="$">دولار أمريكي ($)</option>
+                    </select>
+                    
+                    <button type="submit" class="modern-btn btn-green">حفظ العملية</button>
+                </form>
+            </div>
+
+            <table>
+                <thead><tr><th>السيارة</th><th>المبلغ</th><th>حذف</th></tr></thead>
+                <tbody id="car-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let cars = JSON.parse(localStorage.getItem('eco_v6_cars')) || [];
+
+        function addCar(e) {
+            e.preventDefault();
+            const car = {
+                id: Date.now(),
+                model: document.getElementById('car_model').value,
+                cost: document.getElementById('cost').value,
+                currency: document.getElementById('currency').value // حفظ العملة
+            };
+            cars.push(car);
+            localStorage.setItem('eco_v6_cars', JSON.stringify(cars));
+            document.getElementById('car-form').reset();
+            updateUI();
+        }
+
+        function del(id) {
+            cars = cars.filter(c => c.id !== id);
+            localStorage.setItem('eco_v6_cars', JSON.stringify(cars));
+            updateUI();
+        }
+
+        function updateUI() {
+            const carBody = document.getElementById('car-table-body');
+            carBody.innerHTML = '';
+            cars.forEach(car => {
+                carBody.innerHTML += `<tr>
+                    <td>${car.model}</td>
+                    <td>${car.cost} ${car.currency}</td>
+                    <td><button onclick="del(${car.id})" style="color:red">حذف</button></td>
+                </tr>`;
+            });
+        }
+        
+        // تفعيل العرض عند التحميل
+        updateUI();
+    </script>
+</body>
+</html>
