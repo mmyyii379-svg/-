@@ -41,7 +41,6 @@ cursor:pointer;border:none;border-radius:8px;padding:10px
 }
 
 #main-screen{display:none;padding:10px}
-
 .table-box{background:white;color:black;padding:10px;border-radius:10px;overflow:auto}
 table{width:100%;border-collapse:collapse}
 th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
@@ -76,7 +75,6 @@ th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
 
 <hr>
 
-<!-- CAR FORM -->
 <form onsubmit="addCar(event)">
 <input id="car_model" placeholder="car" required>
 <input id="plate_number" placeholder="plate" required>
@@ -90,9 +88,9 @@ th,td{padding:8px;border-bottom:1px solid #ddd;text-align:right}
 </select>
 
 <select id="car_status">
-<option>قيد العمل</option>
-<option>جاهزة</option>
-<option>تم التسليم</option>
+<option value="قيد العمل">قيد العمل</option>
+<option value="جاهزة">جاهزة</option>
+<option value="تم التسليم">تم التسليم</option>
 </select>
 
 <button>حفظ</button>
@@ -121,12 +119,11 @@ const CLOUD_BIN_URL="https://api.jsonbin.io/v3/b/6686bf54ad19ca34f882a170";
 const CLOUD_KEY="$2a$10$Wp8U8H0eGMc7mC2YpX2.0Ofg/ZunC9A8qXwTymUf5Q18PqMRE3lW2";
 
 let db={cars:[],expenses:[]};
-let mainChart=null;
 
-// LOGIN
+// ---------------- LOGIN ----------------
 function handleLogin(){
-let u=username.value;
-let p=password.value;
+const u=document.getElementById("username").value;
+const p=document.getElementById("password").value;
 
 if((u==="منتظر"||u==="admin") && p==="eco2026"){
 sessionStorage.setItem("eco","1");
@@ -134,7 +131,7 @@ document.getElementById("login-screen").style.display="none";
 document.getElementById("main-screen").style.display="block";
 fetchCloudData();
 }else{
-error-message.style.display="block";
+document.getElementById("error-message").style.display="block";
 }
 }
 
@@ -146,29 +143,35 @@ fetchCloudData();
 }
 }
 
-// FORMAT
+// ---------------- FORMAT ----------------
 function formatCurrencyInput(input){
 let v=input.value.replace(/,/g,'');
-if(v=='' ) return;
-if(!isNaN(v)) input.value=Number(v).toLocaleString();
+if(v===''||isNaN(v)) return;
+input.value=Number(v).toLocaleString();
 }
-function cleanNumber(v){return parseFloat(String(v).replace(/,/g,''))||0}
 
-// CLOUD LOAD
+function cleanNumber(v){
+return parseFloat(String(v).replace(/,/g,''))||0;
+}
+
+// ---------------- CLOUD LOAD ----------------
 async function fetchCloudData(){
 try{
 let res=await fetch(CLOUD_BIN_URL,{headers:{"X-Master-Key":CLOUD_KEY}});
 let data=await res.json();
-db=data.record||{cars:[],expenses:[]};
+
+db=data.record || {cars:[],expenses:[]};
+
 updateUI();
 }catch(e){
-console.log(e);
+console.log("cloud error",e);
 }
 }
 
-// SAVE CLOUD
+// ---------------- SAVE ----------------
 async function saveCloudData(){
-localStorage.setItem("eco",JSON.stringify(db));
+localStorage.setItem("eco_backup",JSON.stringify(db));
+
 try{
 await fetch(CLOUD_BIN_URL,{
 method:"PUT",
@@ -178,12 +181,15 @@ headers:{
 },
 body:JSON.stringify(db)
 });
-}catch(e){}
+}catch(e){
+console.log("save error",e);
+}
 }
 
-// ADD CAR
+// ---------------- ADD CAR ----------------
 function addCar(e){
 e.preventDefault();
+
 db.cars.push({
 id:Date.now(),
 model:car_model.value,
@@ -194,36 +200,39 @@ cost:cleanNumber(cost.value),
 currency:car_currency.value,
 status:car_status.value
 });
+
 e.target.reset();
 updateUI();
 saveCloudData();
 }
 
-// STATUS CHANGE
+// ---------------- STATUS ----------------
 function changeStatusByIndex(i){
 let c=db.cars[i];
+
 if(c.status==="قيد العمل")c.status="جاهزة";
 else if(c.status==="جاهزة")c.status="تم التسليم";
+
 updateUI();
 saveCloudData();
 }
 
-// DELETE
-function deleteItem(id,type){
+// ---------------- DELETE ----------------
+function deleteItem(id){
 if(confirm("حذف؟")){
-if(type==="car")db.cars=db.cars.filter(c=>c.id!==id);
+db.cars=db.cars.filter(c=>c.id!==id);
 updateUI();
 saveCloudData();
 }
 }
 
-// UI
+// ---------------- UI ----------------
 function updateUI(){
 
-count-all.innerText=db.cars.length;
-count-work.innerText=db.cars.filter(c=>c.status==="قيد العمل").length;
-count-ready.innerText=db.cars.filter(c=>c.status==="جاهزة").length;
-count-done.innerText=db.cars.filter(c=>c.status==="تم التسليم").length;
+document.getElementById("count-all").innerText=db.cars.length;
+document.getElementById("count-work").innerText=db.cars.filter(c=>c.status==="قيد العمل").length;
+document.getElementById("count-ready").innerText=db.cars.filter(c=>c.status==="جاهزة").length;
+document.getElementById("count-done").innerText=db.cars.filter(c=>c.status==="تم التسليم").length;
 
 let body=document.getElementById("car-table-body");
 body.innerHTML="";
@@ -234,12 +243,13 @@ body.innerHTML+=`
 <td>${c.model}<br><small>${c.phone}</small></td>
 <td>${c.repairType}</td>
 <td>${c.plate}</td>
-<td>${c.cost.toLocaleString()}</td>
+<td>${Number(c.cost).toLocaleString()}</td>
 <td>
-${c.status}
-<br>
+${c.status}<br>
+
 <button onclick="changeStatusByIndex(${i})">تغيير</button>
-<button onclick="deleteItem(${c.id},'car')">حذف</button>
+<button onclick="deleteItem(${c.id})">حذف</button>
+
 </td>
 </tr>
 `;
