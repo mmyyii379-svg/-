@@ -11,34 +11,31 @@
     
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-font-smoothing: antialiased; }
-        .hidden-section { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-50/70 text-gray-800 min-h-screen">
 
-    <!-- 🔐 شاشة تسجيل الدخول (تم تحويلها لـ Form رسمي لتجنب التعليق) -->
     <div id="loginScreen" class="fixed inset-0 bg-emerald-900 flex flex-col items-center justify-center z-50 px-4">
-        <form onsubmit="checkPassword(event)" class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
             <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 text-3xl">
                 <i class="fa-solid fa-user-shield"></i>
             </div>
             <h2 class="text-2xl font-black text-gray-800 mb-1">ورشة ECO</h2>
             <p class="text-gray-400 text-xs mb-6">يرجى تسجيل الدخول للمتابعة</p>
             
-            <input type="text" id="usernameInput" required placeholder="اسم المستخدم..." class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl mb-3 text-center text-sm font-bold outline-none focus:border-emerald-500 transition">
+            <input type="text" id="usernameInput" placeholder="اسم المستخدم..." class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl mb-3 text-center text-sm font-bold outline-none focus:border-emerald-500 transition">
             
-            <input type="password" id="passwordInput" required placeholder="كلمة المرور..." class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl mb-4 text-center text-sm font-bold outline-none focus:border-emerald-500 transition">
+            <input type="password" id="passwordInput" placeholder="كلمة المرور..." class="w-full border-2 border-gray-200 px-4 py-3 rounded-xl mb-4 text-center text-sm font-bold outline-none focus:border-emerald-500 transition">
             
-            <p id="loginError" class="text-red-500 text-xs font-bold mb-4 hidden-section bg-red-50 py-2 rounded-lg border border-red-100">اسم المستخدم أو كلمة المرور خطأ!</p>
+            <p id="loginError" class="text-red-500 text-xs font-bold mb-4 hidden bg-red-50 py-2 rounded-lg border border-red-100">اسم المستخدم أو كلمة المرور خطأ!</p>
             
-            <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 active:transform active:scale-95 transition-all shadow-lg text-sm">
+            <button onclick="checkPassword()" type="button" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl hover:bg-emerald-700 active:transform active:scale-95 transition-all shadow-lg text-sm">
                 دخول للنظام <i class="fa-solid fa-arrow-left-long mr-2"></i>
             </button>
-        </form>
+        </div>
     </div>
 
-    <!-- 📊 واجهة النظام الرئيسية -->
-    <div id="mainDashboard" class="w-full max-w-7xl mx-auto p-4 md:p-6 hidden-section">
+    <div id="mainDashboard" class="w-full max-w-7xl mx-auto p-4 md:p-6 hidden">
         
         <header class="mb-6 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
@@ -67,7 +64,6 @@
             </nav>
         </header>
 
-        <!-- 1️⃣ صفحة السيارات -->
         <section id="carsPage" class="page-section space-y-6">
             <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                 <h3 class="text-xs font-bold text-gray-400 mb-3"><i class="fa-solid fa-plus text-emerald-600 ml-1"></i> إضافة سيارة جديدة:</h3>
@@ -94,7 +90,6 @@
                 </form>
             </div>
 
-            <!-- الجدول المباشر للسيارات -->
             <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden overflow-x-auto">
                 <table class="w-full text-xs text-right whitespace-nowrap">
                     <thead class="bg-gray-50 text-gray-400 font-bold border-b border-gray-100">
@@ -113,8 +108,7 @@
             </div>
         </section>
 
-        <!-- 2️⃣ صفحة المصروفات -->
-        <section id="expensesPage" class="page-section hidden-section space-y-6">
+        <section id="expensesPage" class="page-section hidden space-y-6">
             <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                 <h3 class="text-xs font-bold text-gray-400 mb-3"><i class="fa-solid fa-minus-circle text-red-500 ml-1"></i> تسجيل مصروف جديد:</h3>
                 <form onsubmit="addExpense(event)" class="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -141,8 +135,7 @@
             </div>
         </section>
 
-        <!-- 3️⃣ 🌟 صفحة دفتر حركات الجرد -->
-        <section id="inventoryPage" class="page-section hidden-section space-y-6">
+        <section id="inventoryPage" class="page-section hidden space-y-6">
             <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 border-b pb-4 border-gray-100">
                     <div>
@@ -161,18 +154,18 @@
                                 <th class="p-3">التفاصيل / البيان</th>
                                 <th class="p-3 text-emerald-600">وارد (تصليح)</th>
                                 <th class="p-3 text-red-500">صادر (مصروف)</th>
+                                <th class="p-3 text-center rounded-l-xl">التحكم بالبيانات</th>
                             </tr>
                         </thead>
                         <tbody id="detailedTimelineTable" class="divide-y divide-gray-100 font-medium text-gray-700">
                         </tbody>
                     </table>
-                    <div id="timelineEmpty" class="text-center p-12 text-gray-400 font-medium hidden-section">لا توجد أي حركات مسجلة بالنظام حالياً.</div>
+                    <div id="timelineEmpty" class="text-center p-12 text-gray-400 font-medium hidden">لا توجد أي حركات مسجلة بالنظام حالياً.</div>
                 </div>
             </div>
         </section>
 
-        <!-- 4️⃣ 📊 صفحة التقارير المتقدمة -->
-        <section id="reportsPage" class="page-section hidden-section space-y-6">
+        <section id="reportsPage" class="page-section hidden space-y-6">
             <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-sliders text-emerald-600 text-lg"></i>
@@ -222,7 +215,26 @@
         </section>
     </div>
 
-    <!-- 🧠 محرك النظام البرمجي الآمن جداً 🧠 -->
+    <div id="editDataModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 border border-gray-100 transform transition-all">
+            <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-4">
+                <h3 class="text-sm font-black text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-600 text-base"></i> تعديل بيانات القيد بالكامل
+                </h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-lg">&times;</button>
+            </div>
+            
+            <form id="universalEditForm" onsubmit="submitGlobalEdit(event)" class="space-y-4 text-right">
+                <div id="dynamicFieldsContainer" class="grid grid-cols-1 gap-3 max-h-[60vh] overflow-y-auto px-1"></div>
+                
+                <div class="flex gap-2 pt-2 border-t border-gray-100">
+                    <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-md">✅ حفظ التعديلات الجديدة</button>
+                    <button type="button" onclick="closeEditModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-500 font-bold px-4 py-2.5 rounded-xl text-xs transition-all">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const CORRECT_USER = "منتظر";
         const CORRECT_PASS = "eco2005";
@@ -231,44 +243,41 @@
         let expenses = [];
         let globalChart = null;
 
-        // التحقق عند تحميل الصفحة
+        let currentEditType = null;
+        let currentEditId = null;
+
         document.addEventListener('DOMContentLoaded', () => {
             if(localStorage.getItem("eco_logged_in") === "true") {
-                document.getElementById('loginScreen').classList.add('hidden-section');
-                document.getElementById('mainDashboard').classList.remove('hidden-section');
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
                 initAppSafe();
             }
         });
 
-        // دالة تسجيل الدخول الجديدة (آمنة ومحمية)
-        function checkPassword(e) {
-            e.preventDefault(); // منع إعادة تحميل الصفحة
-            
+        function checkPassword() {
             const user = document.getElementById('usernameInput').value.trim();
             const pass = document.getElementById('passwordInput').value.trim();
             
             if(user === CORRECT_USER && pass === CORRECT_PASS) {
                 localStorage.setItem("eco_logged_in", "true");
-                document.getElementById('loginError').classList.add('hidden-section');
-                document.getElementById('loginScreen').classList.add('hidden-section');
-                document.getElementById('mainDashboard').classList.remove('hidden-section');
+                document.getElementById('loginError').classList.add('hidden');
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainDashboard').classList.remove('hidden');
                 initAppSafe();
             } else {
-                document.getElementById('loginError').classList.remove('hidden-section');
+                document.getElementById('loginError').classList.remove('hidden');
             }
         }
 
-        // دالة تسجيل الخروج
         function logout() {
             localStorage.removeItem("eco_logged_in");
-            document.getElementById('mainDashboard').classList.add('hidden-section');
-            document.getElementById('loginScreen').classList.remove('hidden-section');
+            document.getElementById('mainDashboard').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('usernameInput').value = '';
             document.getElementById('passwordInput').value = '';
-            document.getElementById('loginError').classList.add('hidden-section');
+            document.getElementById('loginError').classList.add('hidden');
         }
 
-        // دالة الإقلاع الآمنة
         function initAppSafe() {
             try {
                 let savedCars = localStorage.getItem('eco_cars');
@@ -307,8 +316,8 @@
             uniqueMonths.add(currentMonthStr);
             uniqueMonths.add(prevMonthStr);
             
-            cars.forEach(c => { if(c.date) uniqueMonths.add(c.date.substring(0,7)); });
-            expenses.forEach(e => { if(e.date) uniqueMonths.add(e.date.substring(0,7)); });
+            cars.forEach(c => { if(c && c.date && typeof c.date === 'string') uniqueMonths.add(c.date.substring(0,7)); });
+            expenses.forEach(e => { if(e && e.date && typeof e.date === 'string') uniqueMonths.add(e.date.substring(0,7)); });
             
             filterSelect.innerHTML = Array.from(uniqueMonths).sort().reverse().map(m => {
                 let label = m;
@@ -331,17 +340,15 @@
             updateAllViews();
         }
 
-        // دالة التنقل بين الصفحات وتحديث الرسم البياني بشكل آمن
         function switchPage(pageId, btn) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden-section'));
-            document.getElementById(pageId).classList.remove('hidden-section');
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
             
             document.querySelectorAll('.tab-btn').forEach(b => {
                 b.className = "tab-btn flex-1 md:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition-all text-gray-500 hover:text-emerald-600";
             });
             btn.className = "tab-btn flex-1 md:flex-none px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-emerald-600 text-white shadow-sm";
 
-            // إعادة رسم المخطط إذا دخلنا لصفحة التقارير لتجنب الأخطاء
             if(pageId === 'reportsPage') {
                 updateAllViews();
             }
@@ -370,11 +377,11 @@
         }
 
         function updateStatus(id, sel) {
-            let idx = cars.findIndex(c => c.id === id);
+            let idx = cars.findIndex(c => c.id == id);
             if(idx !== -1) { cars[idx].status = sel.value; saveLocal(); }
         }
 
-        function delCar(id) { if(confirm("هل أنت متأكد من حذف هذه السيارة نهائياً؟")) { cars = cars.filter(c => c.id !== id); saveLocal(); } }
+        function delCar(id) { if(confirm("هل أنت متأكد من حذف هذه السيارة نهائياً؟")) { cars = cars.filter(c => c.id != id); saveLocal(); } }
 
         function addExpense(e) {
             e.preventDefault();
@@ -393,11 +400,143 @@
             } catch(err) { console.error(err); alert("حدث خطأ أثناء تسجيل المصروف."); }
         }
 
-        function delExp(id) { if(confirm("هل أنت متأكد من حذف هذا المصروف؟")) { expenses = expenses.filter(e => e.id !== id); saveLocal(); } }
+        function delExp(id) { if(confirm("هل أنت متأكد من حذف هذا المصروف؟")) { expenses = expenses.filter(e => e.id != id); saveLocal(); } }
+
+        function openEditModal(type, id) {
+            currentEditType = type;
+            currentEditId = id;
+            const container = document.getElementById('dynamicFieldsContainer');
+            container.innerHTML = "";
+            
+            if (type === 'car') {
+                let item = cars.find(c => c.id == id);
+                if (!item) return;
+                
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">رقم السيارة:</label>
+                            <input type="text" id="edit_carNum" value="${item.num || ''}" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">نوع السيارة:</label>
+                            <input type="text" id="edit_carModel" value="${item.model || ''}" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">صاحب السيارة:</label>
+                            <input type="text" id="edit_carOwner" value="${item.owner || ''}" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">رقم الموبايل:</label>
+                            <input type="tel" id="edit_carPhone" value="${item.phone || ''}" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 font-bold block mb-1">نوع العطل بالتفصيل:</label>
+                        <input type="text" id="edit_carIssue" value="${item.issue || ''}" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-emerald-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">تاريخ الدخول:</label>
+                            <input type="date" id="edit_carDate" value="${item.date || ''}" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">حالة العمل:</label>
+                            <select id="edit_carStatus" class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-emerald-500">
+                                <option value="قيد التصليح" ${item.status==='قيد التصليح'?'selected':''}>🛠️ قيد التصليح</option>
+                                <option value="تم التصليح" ${item.status==='تم التصليح'?'selected':''}>✅ تم التصليح</option>
+                                <option value="تم التسليم" ${item.status==='تم التسليم'?'selected':''}>📦 تم التسليم</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">الكلفة المالية:</label>
+                            <input type="text" id="edit_carPrice" value="${(item.price || 0).toLocaleString()}" oninput="formatNumberInput(this)" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">العملة المستعملة:</label>
+                            <select id="edit_carCurrency" class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-emerald-500">
+                                <option value="USD" ${item.currency==='USD'?'selected':''}>($) دولار أمريكي</option>
+                                <option value="IQD" ${item.currency==='IQD'?'selected':''}> (ع.د) دينار عراقي</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'exp') {
+                let item = expenses.find(e => e.id == id);
+                if (!item) return;
+                
+                container.innerHTML = `
+                    <div>
+                        <label class="text-[10px] text-gray-400 font-bold block mb-1">بيان الصرف والمصروف بالتفصيل:</label>
+                        <input type="text" id="edit_expTitle" value="${item.title || ''}" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-red-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">المبلغ المالي:</label>
+                            <input type="text" id="edit_expAmount" value="${(item.amount || 0).toLocaleString()}" oninput="formatNumberInput(this)" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-red-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-400 font-bold block mb-1">العملة:</label>
+                            <select id="edit_expCurrency" class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-red-500">
+                                <option value="USD" ${item.currency==='USD'?'selected':''}>($) دولار أمريكي</option>
+                                <option value="IQD" ${item.currency==='IQD'?'selected':''}> (ع.د) دينار عراقي</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 font-bold block mb-1">تاريخ الصرف:</label>
+                        <input type="date" id="edit_expDate" value="${item.date || ''}" required class="w-full border px-3 py-2 rounded-xl text-xs font-bold bg-gray-50 outline-none focus:border-red-500">
+                    </div>
+                `;
+            }
+            
+            document.getElementById('editDataModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editDataModal').classList.add('hidden');
+            currentEditType = null;
+            currentEditId = null;
+        }
+
+        function submitGlobalEdit(e) {
+            e.preventDefault();
+            if (currentEditType === 'car') {
+                let idx = cars.findIndex(c => c.id == currentEditId);
+                if (idx !== -1) {
+                    cars[idx].num = document.getElementById('edit_carNum').value.trim();
+                    cars[idx].model = document.getElementById('edit_carModel').value.trim();
+                    cars[idx].owner = document.getElementById('edit_carOwner').value.trim();
+                    cars[idx].phone = document.getElementById('edit_carPhone').value.trim();
+                    cars[idx].issue = document.getElementById('edit_carIssue').value.trim();
+                    cars[idx].date = document.getElementById('edit_carDate').value;
+                    cars[idx].status = document.getElementById('edit_carStatus').value;
+                    cars[idx].price = getCleanNumber(document.getElementById('edit_carPrice').value);
+                    cars[idx].currency = document.getElementById('edit_carCurrency').value;
+                }
+            } else if (currentEditType === 'exp') {
+                let idx = expenses.findIndex(e => e.id == currentEditId);
+                if (idx !== -1) {
+                    expenses[idx].title = document.getElementById('edit_expTitle').value.trim();
+                    expenses[idx].amount = getCleanNumber(document.getElementById('edit_expAmount').value);
+                    expenses[idx].currency = document.getElementById('edit_expCurrency').value;
+                    expenses[idx].date = document.getElementById('edit_expDate').value;
+                }
+            }
+            setupMonthsFilterOptions();
+            saveLocal();
+            closeEditModal();
+        }
 
         function checkItemBelongsToWeek(dateStr, weekFilterValue) {
+            if(!dateStr || typeof dateStr !== 'string') return true;
             if(weekFilterValue === 'all') return true;
-            let dayNum = parseInt(dateStr.split('-')[2]) || 1;
+            let parts = dateStr.split('-');
+            let dayNum = parseInt(parts[2]) || 1;
             if(weekFilterValue === 'w1') return (dayNum >= 1 && dayNum <= 7);
             if(weekFilterValue === 'w2') return (dayNum >= 8 && dayNum <= 14);
             if(weekFilterValue === 'w3') return (dayNum >= 15 && dayNum <= 21);
@@ -407,46 +546,86 @@
 
         function updateAllViews() {
             try {
-                // 1. تحديث جدول السيارات
-                document.getElementById('carsTable').innerHTML = cars.map(c => `
+                document.getElementById('carsTable').innerHTML = cars.map(c => {
+                    if(!c) return '';
+                    let cNum = c.num || '';
+                    let cModel = c.model || '';
+                    let cOwner = c.owner || '';
+                    let cPhone = c.phone || '';
+                    let cIssue = c.issue || '';
+                    let cDate = c.date || '';
+                    let cStatus = c.status || 'قيد التصليح';
+                    let cPrice = c.price || 0;
+                    let cCurrency = c.currency || 'USD';
+                    return `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-50">
-                        <td class="p-4 font-bold text-gray-800">${c.num} | <span class="text-emerald-700">${c.model}</span></td>
-                        <td class="p-4">${c.owner} (${c.phone})</td>
-                        <td class="p-4"><span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-lg border">${c.issue}</span></td>
-                        <td class="p-4 font-bold text-gray-500">${c.date}</td>
+                        <td class="p-4 font-bold text-gray-800">${cNum} | <span class="text-emerald-700">${cModel}</span></td>
+                        <td class="p-4">${cOwner} (${cPhone})</td>
+                        <td class="p-4"><span class="bg-gray-100 text-gray-700 px-2 py-1 rounded-lg border">${cIssue}</span></td>
+                        <td class="p-4 font-bold text-gray-500">${cDate}</td>
                         <td class="p-4">
                             <select onchange="updateStatus(${c.id}, this)" class="border rounded-lg p-2 text-xs font-bold bg-white cursor-pointer outline-none">
-                                <option ${c.status==='قيد التصليح'?'selected':''}>🛠️ قيد التصليح</option>
-                                <option ${c.status==='تم التصليح'?'selected':''}>✅ تم التصليح</option>
-                                <option ${c.status==='تم التسليم'?'selected':''}>📦 تم التسليم</option>
+                                <option ${cStatus==='قيد التصليح'?'selected':''}>🛠️ قيد التصليح</option>
+                                <option ${cStatus==='تم التصليح'?'selected':''}>✅ تم التصليح</option>
+                                <option ${cStatus==='تم التسليم'?'selected':''}>📦 تم التسليم</option>
                             </select>
                         </td>
-                        <td class="p-4 font-black ${c.currency==='USD'?'text-emerald-600':'text-blue-600'}">${c.price.toLocaleString()} ${c.currency}</td>
-                        <td class="p-4 text-center"><button onclick="delCar(${c.id})" class="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg font-bold transition">حذف</button></td>
-                    </tr>`).join('');
+                        <td class="p-4 font-black ${cCurrency==='USD'?'text-emerald-600':'text-blue-600'}">${cPrice.toLocaleString()} ${cCurrency}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="openEditModal('car', ${c.id})" class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg font-bold transition ml-1">تعديل كامل</button>
+                            <button onclick="delCar(${c.id})" class="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg font-bold transition">حذف</button>
+                        </td>
+                    </tr>`;
+                }).join('');
 
-                // 2. تحديث جدول المصروفات
-                document.getElementById('expensesTable').innerHTML = expenses.map(e => `
+                document.getElementById('expensesTable').innerHTML = expenses.map(e => {
+                    if(!e) return '';
+                    let eTitle = e.title || '';
+                    let eAmount = e.amount || 0;
+                    let eCurrency = e.currency || 'USD';
+                    let eDate = e.date || '';
+                    return `
                     <tr class="hover:bg-gray-50 transition border-b border-gray-50">
-                        <td class="p-4 font-bold text-gray-800">${e.title}</td>
-                        <td class="p-4 font-black text-red-500">${e.amount.toLocaleString()} ${e.currency}</td>
-                        <td class="p-4 font-bold text-gray-500">${e.date}</td>
-                        <td class="p-4 text-center"><button onclick="delExp(${e.id})" class="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg font-bold transition">حذف</button></td>
-                    </tr>`).join('');
+                        <td class="p-4 font-bold text-gray-800">${eTitle}</td>
+                        <td class="p-4 font-black text-red-500">${eAmount.toLocaleString()} ${eCurrency}</td>
+                        <td class="p-4 font-bold text-gray-500">${eDate}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="openEditModal('exp', ${e.id})" class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg font-bold transition ml-1">تعديل كامل</button>
+                            <button onclick="delExp(${e.id})" class="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg font-bold transition">حذف</button>
+                        </td>
+                    </tr>`;
+                }).join('');
 
-                // 3. تحديث الجرد المتكامل
                 let combinedMovements = [];
-                cars.forEach(c => combinedMovements.push({
-                    date: c.date, month: c.date.substring(0,7), type: "🚗 تصليح سيارة",
-                    details: `سيارة ${c.model} (رقم: ${c.num}) - العميل: ${c.owner}`,
-                    incomeStr: `${c.price.toLocaleString()} ${c.currency}`, expenseStr: "-",
-                    isIncome: true, currency: c.currency, val: c.price
-                }));
-                expenses.forEach(e => combinedMovements.push({
-                    date: e.date, month: e.date.substring(0,7), type: "💸 مصروف جانبي",
-                    details: e.title, incomeStr: "-", expenseStr: `${e.amount.toLocaleString()} ${e.currency}`,
-                    isIncome: false, currency: e.currency, val: e.amount
-                }));
+                cars.forEach(c => {
+                    if(!c) return;
+                    let cDate = c.date || '';
+                    let cMonth = typeof cDate === 'string' ? cDate.substring(0,7) : '';
+                    let cModel = c.model || '';
+                    let cNum = c.num || '';
+                    let cOwner = c.owner || '';
+                    let cPrice = c.price || 0;
+                    let cCurrency = c.currency || 'USD';
+                    combinedMovements.push({
+                        id: c.id, date: cDate, month: cMonth, type: "🚗 تصليح سيارة",
+                        details: `سيارة ${cModel} (رقم: ${cNum}) - العميل: ${cOwner}`,
+                        incomeStr: `${cPrice.toLocaleString()} ${cCurrency}`, expenseStr: "-",
+                        isIncome: true, currency: cCurrency, val: cPrice
+                    });
+                });
+                expenses.forEach(e => {
+                    if(!e) return;
+                    let eDate = e.date || '';
+                    let eMonth = typeof eDate === 'string' ? eDate.substring(0,7) : '';
+                    let eTitle = e.title || '';
+                    let eAmount = e.amount || 0;
+                    let eCurrency = e.currency || 'USD';
+                    combinedMovements.push({
+                        id: e.id, date: eDate, month: eMonth, type: "💸 مصروف جانبي",
+                        details: eTitle, incomeStr: "-", expenseStr: `${eAmount.toLocaleString()} ${eCurrency}`,
+                        isIncome: false, currency: eCurrency, val: eAmount
+                    });
+                });
 
                 combinedMovements.sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -454,10 +633,10 @@
                 const timelineEmpty = document.getElementById('timelineEmpty');
                 
                 if(combinedMovements.length === 0) {
-                    timelineEmpty.classList.remove('hidden-section');
+                    timelineEmpty.classList.remove('hidden');
                     timelineTable.innerHTML = '';
                 } else {
-                    timelineEmpty.classList.add('hidden-section');
+                    timelineEmpty.classList.add('hidden');
                     timelineTable.innerHTML = combinedMovements.map(m => `
                         <tr class="hover:bg-gray-50 transition border-b border-gray-50">
                             <td class="p-3 font-bold text-gray-900 bg-gray-50/40">${m.date}</td>
@@ -466,22 +645,24 @@
                             <td class="p-3 text-gray-600 max-w-xs truncate font-bold">${m.details}</td>
                             <td class="p-3 font-black text-emerald-600">${m.incomeStr}</td>
                             <td class="p-3 font-black text-red-500">${m.expenseStr}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="openEditModal('${m.isIncome ? 'car' : 'exp'}', ${m.id})" class="text-blue-500 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl font-bold transition shadow-sm">تعديل شامل</button>
+                            </td>
                         </tr>
                     `).join('');
                 }
 
-                // 4. الحسابات والتقارير
                 const targetMonth = document.getElementById('reportMonthFilter') ? document.getElementById('reportMonthFilter').value : "";
                 const targetWeek = document.getElementById('reportWeekFilter') ? document.getElementById('reportWeekFilter').value : "all";
 
-                let filteredCars = cars.filter(c => c.date.startsWith(targetMonth) && checkItemBelongsToWeek(c.date, targetWeek));
-                let filteredExp = expenses.filter(e => e.date.startsWith(targetMonth) && checkItemBelongsToWeek(e.date, targetWeek));
+                let filteredCars = cars.filter(c => c && c.date && typeof c.date === 'string' && c.date.startsWith(targetMonth) && checkItemBelongsToWeek(c.date, targetWeek));
+                let filteredExp = expenses.filter(e => e && e.date && typeof e.date === 'string' && e.date.startsWith(targetMonth) && checkItemBelongsToWeek(e.date, targetWeek));
 
-                let incU = filteredCars.filter(c=>c.currency==='USD').reduce((a,b)=>a+b.price,0);
-                let incI = filteredCars.filter(c=>c.currency==='IQD').reduce((a,b)=>a+b.price,0);
+                let incU = filteredCars.filter(c=>c.currency==='USD').reduce((a,b)=>a+(b.price||0),0);
+                let incI = filteredCars.filter(c=>c.currency==='IQD').reduce((a,b)=>a+(b.price||0),0);
                 
-                let expU = filteredExp.filter(e=>e.currency==='USD').reduce((a,b)=>a+b.amount,0);
-                let expI = filteredExp.filter(e=>e.currency==='IQD').reduce((a,b)=>a+b.amount,0);
+                let expU = filteredExp.filter(e=>e.currency==='USD').reduce((a,b)=>a+(b.amount||0),0);
+                let expI = filteredExp.filter(e=>e.currency==='IQD').reduce((a,b)=>a+(b.amount||0),0);
 
                 let netU = incU - expU;
                 let netI = incI - expI;
@@ -493,8 +674,7 @@
                 profEl.innerText = `$${netU.toLocaleString()} | ${netI.toLocaleString()} ع.د`;
                 profEl.className = (netU >= 0 && netI >= 0) ? "text-xl font-black text-emerald-600" : "text-xl font-black text-red-500";
 
-                // حماية مكتبة الرسم البياني
-                if (typeof Chart !== 'undefined' && !document.getElementById('reportsPage').classList.contains('hidden-section')) {
+                if (typeof Chart !== 'undefined' && !document.getElementById('reportsPage').classList.contains('hidden')) {
                     if(globalChart) globalChart.destroy();
                     let ctx = document.getElementById('reportingChart');
                     if(ctx) {
