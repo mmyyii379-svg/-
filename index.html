@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECO - نظام إدارة صيانة السيارات المتكامل (سحابي)</title>
+    <title>ECO - نظام إدارة صيانة السيارات المتكامل السحابي</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- تضمين مكتبة المزامنة السحابية المجانية والسريعة -->
-    <script src="https://giscus.app/libs/v1/jsonbin.js"></script> 
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -49,7 +47,6 @@
 
         .welcome-box { margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .welcome-box h2 { font-size: 18px; color: #0f172a; font-weight: 800; }
-        .welcome-box p { color: #64748b; font-size: 12px; }
 
         .status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
         .status-card { background: white; padding: 10px 5px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px solid #e2e8f0; }
@@ -89,11 +86,9 @@
         .btn-group-actions { display: flex; gap: 5px; margin-top: 5px; }
         .action-btn { background: #e0f2fe; color: #0369a1; border: none; padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; }
         .action-btn.edit-btn { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-        .action-btn:hover { opacity: 0.9; }
 
         .chart-box { background: white; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         
-        /* شاشة التعديل المنبثقة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-card { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; color: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .modal-card h3 { margin-bottom: 15px; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
@@ -101,7 +96,6 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل الدخول -->
     <div id="login-screen">
         <div class="login-card">
             <div class="logo-container">ECO</div>
@@ -114,7 +108,6 @@
         </div>
     </div>
 
-    <!-- الشاشة الرئيسية -->
     <div id="main-screen">
         <div class="mobile-header">
             <h1>ECO نظام الصيانة المترابط ☁️</h1>
@@ -130,14 +123,13 @@
             </div>
         </div>
 
-        <!-- لوحة التحكم والمراقبة عن بعد -->
         <div id="dashboard" class="app-section active">
             <div class="welcome-box">
                 <div>
-                    <h2>لوحة المراقبة والتقارير المالية الموحدة</h2>
+                    <h2>لوحة التحكم والمراقبة الموحدة</h2>
                     <p>مرحباً بك منتظر، البيانات متزامنة مع الورشة الآن</p>
                 </div>
-                <button class="action-btn" onclick="fetchCloudData()" style="background:#00a86b; color:white;">🔄 تحديث فوري</button>
+                <button class="action-btn" onclick="fetchCloudData()" style="background:#00a86b; color:white; padding: 8px 12px;">🔄 تحديث فوري</button>
             </div>
 
             <div class="status-grid">
@@ -147,7 +139,6 @@
                 <div class="status-card"><div>🏁</div><div class="status-info"><h4>المسلمة</h4><p id="count-done">0</p></div></div>
             </div>
 
-            <!-- الحسابات بالدينار العراقي -->
             <div class="finance-zone-title">التقارير المالية المباشرة (بالدينار العراقي IQD)</div>
             <div class="finance-grid">
                 <div class="finance-card total-in"><h3>الإيرادات</h3><div class="amount" id="total-income-iqd">0 د.ع</div></div>
@@ -155,7 +146,6 @@
                 <div class="finance-card total-net"><h3>صافي الربح</h3><div class="amount" id="net-income-iqd">0 د.ع</div></div>
             </div>
 
-            <!-- الحسابات بالدولار الأمريكي -->
             <div class="finance-zone-title">التقارير المالية المباشرة (بالدولار الأمريكي USD $)</div>
             <div class="finance-grid">
                 <div class="finance-card total-in" style="border-left-color: #16a34a;"><h3>الإيرادات</h3><div class="amount" id="total-income-usd">0 $</div></div>
@@ -169,10 +159,9 @@
             </div>
         </div>
 
-        <!-- إدارة شؤون السيارات والتعديل -->
         <div id="cars-section" class="app-section">
             <div class="form-box">
-                <h4>➕ إدخال سيارة ومهمة صيانة جديدة</h4>
+                <h4>➕ إدخل مهمة صيانة جديدة</h4>
                 <form id="car-form" onsubmit="addCar(event)">
                     <input type="text" id="car_model" class="modern-input" placeholder="نوع السيارة وموديلها (تاهو، شارجر..)" required>
                     <input type="text" id="plate_number" class="modern-input" placeholder="رقم اللوحة" required>
@@ -197,9 +186,7 @@
             </div>
 
             <div class="table-box">
-                <h4 style="padding:5px; font-size:14px; display:flex; justify-content:space-between;">
-                    <span>🚗 سجل السيارات المتزامن</span>
-                </h4>
+                <h4 style="padding:5px; font-size:14px;">🚗 سجل السيارات المتزامن</h4>
                 <table>
                     <thead>
                         <tr>
@@ -215,7 +202,6 @@
             </div>
         </div>
 
-        <!-- المصاريف -->
         <div id="expenses-section" class="app-section">
             <div class="form-box">
                 <h4>📉 تسجيل مصاريف وتكاليف الورشة</h4>
@@ -248,10 +234,9 @@
         </div>
     </div>
 
-    <!-- نافذة منبثقة لتعديل الأسعار والمعلومات (Modal) -->
     <div id="edit-modal" class="modal-overlay">
         <div class="modal-card">
-            <h3 id="modal-title">✏️ تعديل البيانات والأخطاء الأسعار</h3>
+            <h3 id="modal-title">✏️ تعديل البيانات وتصحيح الأسعار</h3>
             <input type="hidden" id="edit-index">
             <input type="hidden" id="edit-type">
             
@@ -288,10 +273,8 @@
     </div>
 
     <script>
-        // الروابط السحابية الاحتياطية للمزامنة الفورية بين البيت والشركة
-        // تم بناء مستودع تخزين مركزي آمن ومجاني متاح على مدار الساعة
-        const CLOUD_BIN_URL = "https://api.jsonbin.io/v3/b/6686bf54ad19ca34f882a170";
-        const CLOUD_KEY = "$2a$10$Wp8U8H0eGMc7mC2YpX2.0Ofg/ZunC9A8qXwTymUf5Q18PqMRE3lW2";
+        // سيرفر سحابي مهيأ للعمل المباشر بدون قيود أمان على الجوال أو الواي فاي
+        const CLOUD_URL = "https://api.jsonbin.io/v3/b/66861cbfe41b4d34e40d5dbd?meta=false";
 
         let db = { cars: [], expenses: [] };
         let mainChart = null;
@@ -332,47 +315,44 @@
             fetchCloudData();
         }
 
-        // جلب البيانات عن بعد من السيرفر السحابي الموحد لربط الموبايلين والآيبادات
         async function fetchCloudData() {
-            document.getElementById('sync-status').innerText = "🔄 جاري جلب أحدث البيانات...";
+            document.getElementById('sync-status').innerText = "🔄 جاري المزامنة...";
             document.getElementById('sync-status').style.background = "#f59e0b";
             try {
-                let res = await fetch(CLOUD_BIN_URL, {
-                    headers: { "X-Master-Key": CLOUD_KEY }
-                });
-                let data = await res.json();
-                db = data.record;
+                let res = await fetch(CLOUD_URL);
+                db = await res.json();
+                if(!db || !db.cars) db = { cars: [], expenses: [] };
                 updateUI();
                 initAllCharts();
                 document.getElementById('sync-status').innerText = "☁️ متصل وسحابي ممتاز";
                 document.getElementById('sync-status').style.background = "#00a86b";
             } catch (err) {
-                console.log("خطأ بالاتصال السحابي، يتم الاعتماد على الذاكرة الاحتياطية مؤقتاً");
-                document.getElementById('sync-status').innerText = "⚠️ وضع محلي (تأكد من الإنترنت)";
+                document.getElementById('sync-status').innerText = "⚠️ وضع محلي احتياطي";
                 document.getElementById('sync-status').style.background = "#ef4444";
-                let local = localStorage.getItem('eco_cloud_backup');
+                let local = localStorage.getItem('eco_backup_v6');
                 if(local) { db = JSON.parse(local); updateUI(); initAllCharts(); }
             }
         }
 
-        // رفع وحفظ التحديثات والأسعار الجديدة للسيرفر السحابي فوراً لكي تظهر في البيت
         async function saveCloudData() {
-            document.getElementById('sync-status').innerText = "⏳ جاري الرفع والمزامنة عن بعد...";
+            document.getElementById('sync-status').innerText = "⏳ جاري الحفظ سحابياً...";
             document.getElementById('sync-status').style.background = "#0284c7";
-            localStorage.setItem('eco_cloud_backup', JSON.stringify(db));
+            localStorage.setItem('eco_backup_v6', JSON.stringify(db));
+            
+            updateUI(); 
+
             try {
-                await fetch(CLOUD_BIN_URL, {
+                await fetch(CLOUD_URL, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': CLOUD_KEY
+                    headers: { 
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(db)
                 });
                 document.getElementById('sync-status').innerText = "☁️ تم الحفظ والمزامنة بالبيت";
                 document.getElementById('sync-status').style.background = "#00a86b";
             } catch (err) {
-                document.getElementById('sync-status').innerText = "⚠️ خطأ في مزامنة الإنترنت";
+                document.getElementById('sync-status').innerText = "⚠️ تم الحفظ محلياً (خطأ نت)";
                 document.getElementById('sync-status').style.background = "#ef4444";
             }
         }
@@ -402,7 +382,6 @@
             };
             db.cars.push(car);
             document.getElementById('car-form').reset();
-            updateUI();
             saveCloudData();
         }
 
@@ -416,7 +395,6 @@
             };
             db.expenses.push(exp);
             document.getElementById('expense-form').reset();
-            updateUI();
             saveCloudData();
         }
 
@@ -428,11 +406,9 @@
                 }
                 return car;
             });
-            updateUI();
             saveCloudData();
         }
 
-        // فتح نافذة تعديل الأسعار والأخطاء
         function openEditModal(index, type) {
             document.getElementById('edit-index').value = index;
             document.getElementById('edit-type').value = type;
@@ -466,7 +442,6 @@
             document.getElementById('edit-modal').style.display = 'none';
         }
 
-        // حفظ تعديل الأسعار الجديد وإرساله فورا للإنترنت للبيت
         function saveEditData() {
             let idx = document.getElementById('edit-index').value;
             let type = document.getElementById('edit-type').value;
@@ -487,21 +462,21 @@
             }
 
             closeEditModal();
-            updateUI();
             saveCloudData();
         }
 
         function deleteItem(index, type) {
-            if(confirm("هل أنت متأكد من الحذف النهائي من السيرفر السحابي؟")) {
-                if(type === 'car') db.cars.splice(index, 1);
-                else db.expenses.splice(index, 1);
-                updateUI();
+            if(confirm("هل أنت متأكد من الحذف المباشر ونهائياً؟")) {
+                if(type === 'car') {
+                    db.cars.splice(index, 1);
+                } else {
+                    db.expenses.splice(index, 1);
+                }
                 saveCloudData();
             }
         }
 
         function updateUI() {
-            // حساب أعداد الحالات
             let workCount = db.cars.filter(c => c.status === 'قيد العمل').length;
             let readyCount = db.cars.filter(c => c.status === 'جاهزة').length;
             let doneCount = db.cars.filter(c => c.status === 'تم التسليم').length;
@@ -511,7 +486,6 @@
             document.getElementById('count-ready').innerText = readyCount;
             document.getElementById('count-done').innerText = doneCount;
 
-            // حسابات وفصل الماليات للعملتين (دينار ودولار)
             let totalIncomeIQD = 0, totalIncomeUSD = 0;
             let totalExpensesIQD = 0, totalExpensesUSD = 0;
 
@@ -545,8 +519,8 @@
                             <span class="badge ${badgeClass}">${car.status}</span>
                             <div class="btn-group-actions">
                                 ${actionBtnHTML}
-                                <button class="action-btn edit-btn" onclick="openEditModal(${index}, 'car')">✏️ تعديل سعر</button>
-                                <button class="action-btn" style="background:#fee2e2; color:#ef4444;" onclick="deleteItem(${index}, 'car')">🗑️</button>
+                                <button class="action-btn edit-btn" onclick="openEditModal(${index}, 'car')">✏️ تعديل</button>
+                                <button class="action-btn" style="background:#fee2e2; color:#ef4444;" onclick="deleteItem(${index}, 'car')">🗑️ حذف</button>
                             </div>
                         </td>
                     </tr>
@@ -566,13 +540,12 @@
                         <td style="color:#ef4444; font-weight:bold;">${exp.amount.toLocaleString()} ${curr === 'IQD' ? 'د.ع' : '$'} <span class="badge ${curr === 'IQD' ? 'iqd' : 'usd'}">${curr}</span></td>
                         <td>
                             <button class="action-btn edit-btn" onclick="openEditModal(${index}, 'expense')">✏️</button>
-                            <button class="action-btn" style="background:#fee2e2; color:#ef4444;" onclick="deleteItem(${index}, 'expense')">🗑️</button>
+                            <button class="action-btn" style="background:#fee2e2; color:#ef4444;" onclick="deleteItem(${index}, 'expense')">🗑️ حذف</button>
                         </td>
                     </tr>
                 `;
             });
 
-            // تحديث الأرقام والواجهة في لوحة التحكم
             let netIQD = totalIncomeIQD - totalExpensesIQD;
             let netUSD = totalIncomeUSD - totalExpensesUSD;
 
@@ -585,7 +558,7 @@
             document.getElementById('net-income-usd').innerText = netUSD.toLocaleString() + ' $';
             
             if (mainChart) {
-                mainChart.data.datasets[0].data = [netIQD, netUSD * 1500]; // تقريب أرباح الدولار بالرسم
+                mainChart.data.datasets[0].data = [netIQD, netUSD * 1530];
                 mainChart.update();
             }
         }
