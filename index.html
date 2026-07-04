@@ -2,43 +2,44 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام الصيانة السحابي</title>
+    <title>نظام الصيانة</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        input, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        body { font-family: sans-serif; background: #f4f4f9; padding: 10px; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 8px; margin: 4px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h3>إضافة سيارة جديدة</h3>
     <input type="text" id="car" placeholder="السيارة">
     <input type="text" id="plate" placeholder="الرقم">
     <input type="text" id="owner" placeholder="اسم الزبون">
-    <input type="text" id="work" placeholder="نوع العمل">
+    <input type="text" id="work" placeholder="العمل">
     <button onclick="saveData()">حفظ سحابي</button>
 </div>
 
 <table id="myTable">
-    <tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>حذف</th></tr>
+    <tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>X</th></tr>
 </table>
 
 <script>
-    // رابط سيرفر سحابي بسيط جداً
+    // هذا رابط سيرفر بيانات مفتوح ومستقر
     const API_URL = "https://api.jsonbin.io/v3/b/66861cbfe41b4d34e40d5dbd?meta=false";
 
     async function fetchData() {
-        let res = await fetch(API_URL);
-        let data = await res.json();
-        let table = document.getElementById("myTable");
-        table.innerHTML = "<tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>حذف</th></tr>";
-        data.forEach((item, index) => {
-            table.innerHTML += `<tr><td>${item.car}</td><td>${item.plate}</td><td>${item.owner}</td><td>${item.work}</td><td><button onclick="del(${index})" style="background:red">X</button></td></tr>`;
-        });
+        try {
+            let res = await fetch(API_URL);
+            let data = await res.json();
+            let table = document.getElementById("myTable");
+            table.innerHTML = "<tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>X</th></tr>";
+            data.forEach((item, index) => {
+                table.innerHTML += `<tr><td>${item.car}</td><td>${item.plate}</td><td>${item.owner}</td><td>${item.work}</td><td><button onclick="del(${index})" style="background:red">X</button></td></tr>`;
+            });
+        } catch(e) { alert("تأكد من الاتصال بالإنترنت"); }
     }
 
     async function saveData() {
