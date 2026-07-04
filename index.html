@@ -2,49 +2,50 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام الصيانة</title>
+    <title>ECO - إدارة الصيانة</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f9; padding: 10px; }
-        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 8px; margin: 4px 0; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 14px; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 10px; }
+        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: center; }
+        th { background: #f8f9fa; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <input type="text" id="car" placeholder="السيارة">
-    <input type="text" id="plate" placeholder="الرقم">
+    <input type="text" id="plate" placeholder="رقم اللوحة">
     <input type="text" id="owner" placeholder="اسم الزبون">
-    <input type="text" id="work" placeholder="العمل">
-    <button onclick="saveData()">حفظ سحابي</button>
+    <input type="text" id="work" placeholder="العمل المطلوب">
+    <button onclick="saveData()">حفظ البيانات سحابياً</button>
 </div>
 
 <table id="myTable">
-    <tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>X</th></tr>
+    <tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>حذف</th></tr>
 </table>
 
 <script>
-    // هذا رابط سيرفر بيانات مفتوح ومستقر
+    // رابط السيرفر السحابي الثابت
     const API_URL = "https://api.jsonbin.io/v3/b/66861cbfe41b4d34e40d5dbd?meta=false";
 
-    async function fetchData() {
+    async function loadTable() {
         try {
-            let res = await fetch(API_URL);
-            let data = await res.json();
-            let table = document.getElementById("myTable");
-            table.innerHTML = "<tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>X</th></tr>";
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            const table = document.getElementById("myTable");
+            table.innerHTML = "<tr><th>السيارة</th><th>الرقم</th><th>الزبون</th><th>العمل</th><th>حذف</th></tr>";
             data.forEach((item, index) => {
-                table.innerHTML += `<tr><td>${item.car}</td><td>${item.plate}</td><td>${item.owner}</td><td>${item.work}</td><td><button onclick="del(${index})" style="background:red">X</button></td></tr>`;
+                table.innerHTML += `<tr><td>${item.car}</td><td>${item.plate}</td><td>${item.owner}</td><td>${item.work}</td><td><button onclick="del(${index})" style="background:red; color:white; border:none; padding:5px;">X</button></td></tr>`;
             });
-        } catch(e) { alert("تأكد من الاتصال بالإنترنت"); }
+        } catch (e) { alert("تأكد من الاتصال بالإنترنت!"); }
     }
 
     async function saveData() {
-        let res = await fetch(API_URL);
-        let data = await res.json();
+        const res = await fetch(API_URL);
+        const data = await res.json();
         data.push({
             car: document.getElementById('car').value,
             plate: document.getElementById('plate').value,
@@ -52,18 +53,18 @@
             work: document.getElementById('work').value
         });
         await fetch(API_URL, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-        fetchData();
+        loadTable();
     }
 
     async function del(index) {
-        let res = await fetch(API_URL);
-        let data = await res.json();
+        const res = await fetch(API_URL);
+        const data = await res.json();
         data.splice(index, 1);
         await fetch(API_URL, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-        fetchData();
+        loadTable();
     }
 
-    fetchData();
+    loadTable();
 </script>
 </body>
 </html>
