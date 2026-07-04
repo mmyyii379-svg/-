@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECO - نظام إدارة الصيانة المطور</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg-dark: #0f172a; --panel-dark: #1e293b; --primary-green: #00a86b; --primary-blue: #38bdf8; --text-light: #f8fafc; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f1f5f9; color: #1e293b; min-height: 100vh; padding-bottom: 60px; }
+        
+        .mobile-header { background: var(--panel-dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .app-section { padding: 15px; max-width: 800px; margin: 0 auto; }
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .modern-input, .modern-select { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; }
+        .btn-green { background: var(--primary-green); }
+        .finance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .finance-card { background: white; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #e2e8f0; }
+        .finance-card h3 { font-size: 10px; color: #64748b; }
+        .finance-card p { font-size: 14px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; background: white; }
+        th, td { padding: 8px; text-align: right; border-bottom: 1px solid #f1f5f9; }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-header">
+        <h1>ECO نظام الصيانة ⚙️</h1>
+    </div>
+
+    <div class="app-section">
+        <div class="finance-grid">
+            <div class="finance-card"><h3>إجمالي الدينار (IQD)</h3><p id="total-iqd">0 د.ع</p></div>
+            <div class="finance-card"><h3>إجمالي الدولار (USD)</h3><p id="total-usd">0 $</p></div>
+        </div>
+
+        <div class="card">
+            <h4>إضافة مهمة صيانة</h4>
+            <input type="text" id="car_model" class="modern-input" placeholder="نوع السيارة">
+            <input type="text" id="cost" class="modern-input" placeholder="المبلغ">
+            <select id="currency" class="modern-select">
+                <option value="IQD">دينار عراقي (IQD)</option>
+                <option value="USD">دولار أمريكي (USD)</option>
+            </select>
+            <button class="btn btn-green" onclick="addEntry('car')">حفظ السيارة</button>
+        </div>
+
+        <div class="card">
+            <h4>تسجيل مصروف</h4>
+            <input type="text" id="exp_desc" class="modern-input" placeholder="تفاصيل المصروف">
+            <input type="text" id="exp_amount" class="modern-input" placeholder="المبلغ">
+            <select id="exp_currency" class="modern-select">
+                <option value="IQD">دينار عراقي (IQD)</option>
+                <option value="USD">دولار أمريكي (USD)</option>
+            </select>
+            <button class="btn btn-green" onclick="addEntry('exp')">حفظ المصروف</button>
+        </div>
+
+        <table>
+            <thead><tr><th>البيان</th><th>المبلغ</th><th>النوع</th></tr></thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem('eco_data')) || [];
+
+        function addEntry(type) {
+            let item = {
+                type: type,
+                desc: type === 'car' ? document.getElementById('car_model').value : document.getElementById('exp_desc').value,
+                amount: parseFloat(document.getElementById(type === 'car' ? 'cost' : 'exp_amount').value),
+                curr: document.getElementById(type === 'car' ? 'currency' : 'exp_currency').value
+            };
+            data.push(item);
+            localStorage.setItem('eco_data', JSON.stringify(data));
+            updateUI();
+        }
+
+        function updateUI() {
+            let iqd = 0, usd = 0;
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+            
+            data.forEach(item => {
+                if(item.curr === 'IQD') iqd += item.amount;
+                else usd += item.amount;
+                
+                tbody.innerHTML += `<tr><td>${item.desc}</td><td>${item.amount}</td><td>${item.curr}</td></tr>`;
+            });
+            
+            document.getElementById('total-iqd').innerText = iqd.toLocaleString() + ' د.ع';
+            document.getElementById('total-usd').innerText = usd.toLocaleString() + ' $';
+        }
+        updateUI();
+    </script>
+</body>
+</html>
